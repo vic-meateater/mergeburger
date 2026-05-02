@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace _Project._00_Code.UI
+namespace Mergeburgers.UI
 {
   public sealed class MainMenuController : MonoBehaviour
   {

@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "05f38e338b6bc0d2",
+        "id": "c6aa18d36dba3076",
         "type": "tabs",
         "children": [
           {
-            "id": "bf35a8d4a29482fd",
+            "id": "c2a6b5e2e943b285",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "00-Workflow/DAY_02_CHECKLIST.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "DAY_02_CHECKLIST"
+              "title": "New tab"
             }
           }
         ]
@@ -183,8 +179,10 @@
       "bases:Create new base": false
     }
   },
-  "active": "bf35a8d4a29482fd",
+  "active": "c2a6b5e2e943b285",
   "lastOpenFiles": [
+    "00-Workflow/DAY_03_CHECKLIST.md",
+    "00-Workflow/DAY_02_CHECKLIST.md",
     "00-Workflow/DAY_01_CHECKLIST.md",
     "99-Backlog/backlog.md",
     "00-Workflow/Day 1.md",
