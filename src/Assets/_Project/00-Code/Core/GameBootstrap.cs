@@ -1,16 +1,17 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameBootstrap : MonoBehaviour
+namespace _Project._00_Code.Core
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+  public sealed class GameBootstrap : MonoBehaviour
+  {
+    private const string MAIN_MENU_SCENE = "MainMenu";
 
-    // Update is called once per frame
-    void Update()
+    [SerializeField] private string _nextScene = MAIN_MENU_SCENE;
+
+    private void Start()
     {
-        
+      SceneManager.LoadSceneAsync(_nextScene);
     }
+  }
 }

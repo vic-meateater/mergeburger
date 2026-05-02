@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "00-Workflow/DAY_01_CHECKLIST.md",
+                "file": "00-Workflow/DAY_02_CHECKLIST.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DAY_01_CHECKLIST"
+              "title": "DAY_02_CHECKLIST"
             }
           }
         ]
@@ -185,8 +185,8 @@
   },
   "active": "bf35a8d4a29482fd",
   "lastOpenFiles": [
-    "99-Backlog/backlog.md",
     "00-Workflow/DAY_01_CHECKLIST.md",
+    "99-Backlog/backlog.md",
     "00-Workflow/Day 1.md",
     "00-Workflow",
     "99-Backlog",
