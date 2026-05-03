@@ -18,8 +18,11 @@ namespace Mergeburgers.Core
             // TODO День 6: WebGL-имплементации через max-games плагин
 #endif
       Signals();
+      Managers();
       Dev();
     }
+
+    
 
 
     private void YandexServicesEditor()
@@ -40,6 +43,11 @@ namespace Mergeburgers.Core
       Container.DeclareSignal<BurgerCreatedSignal>();
       Container.DeclareSignal<EnergySpentSignal>();
       Container.DeclareSignal<LevelMilestoneSignal>();
+    }
+    
+    private void Managers()
+    {
+      Container.Bind<SaveManager>().AsSingle();
     }
 
     private void Dev()

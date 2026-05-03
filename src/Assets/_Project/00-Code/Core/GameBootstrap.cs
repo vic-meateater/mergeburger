@@ -14,25 +14,25 @@ namespace Mergeburgers.Core
     [SerializeField] private string _nextScene = MAIN_MENU_SCENE;
     
     private IAdService _adService;
-    private ICloudSaveService _saveService;
     private SignalBus _signalBus;
+    private SaveManager _saveManager;
 
     [Inject]
     public void Construct(
       IAdService adService, 
-      ICloudSaveService cloudSaveService,
-      SignalBus signalBus)
+      SignalBus signalBus,
+      SaveManager saveManager)
     {
-      _saveService = cloudSaveService;
       _adService = adService;
       _signalBus = signalBus;
+      _saveManager = saveManager;
     }
     
     private async void Start()
     {
       // Smoke test DI: убеждаемся, что инжект работает
-      var save = await _saveService.LoadAsync();
-      Debug.Log($"[Bootstrap] Save loaded: {(string.IsNullOrEmpty(save) ? "<no save>" : "exists")}");
+      await _saveManager.LoadAsync();
+      Debug.Log($"[Bootstrap] Save ready: coins={_saveManager.Current.coins}, energy={_saveManager.Current.energy}");
 
       Debug.Log($"[Bootstrap] Ad service ready: {_adService.IsReady}");
       
