@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿//#if UNITY_EDITOR
 
 using System.Threading.Tasks;
 using UnityEngine;
@@ -27,4 +27,4 @@ namespace Mergeburgers.Yandex.Editor
   }
 }
 
-#endif
+//#endif

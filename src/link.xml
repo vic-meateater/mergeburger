@@ -1,0 +1,8 @@
+<linker>
+  <assembly fullname="Zenject-usage" preserve="all"/>
+  <assembly fullname="Zenject" preserve="all"/>
+  <assembly fullname="Zenject.Signals" preserve="all"/>
+  <assembly fullname="UnityEngine.CoreModule">
+    <type fullname="UnityEngine.AsyncOperation" preserve="all"/>
+  </assembly>
+</linker>
