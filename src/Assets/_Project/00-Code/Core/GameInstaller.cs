@@ -1,5 +1,11 @@
 ﻿using Mergeburgers.Events;
 using Mergeburgers.Yandex;
+
+#if !UNITY_EDITOR
+using Mergeburgers.Yandex.WebGL;
+using Mergeburgers.Yandex.Editor;
+#endif
+
 using Zenject;
 
 #if UNITY_EDITOR
@@ -15,7 +21,7 @@ namespace Mergeburgers.Core
 #if UNITY_EDITOR
       YandexServicesEditor();
 #else
-            // TODO День 6: WebGL-имплементации через max-games плагин
+      YandexServicesWebGL();
 #endif
       Signals();
       Managers();
@@ -24,7 +30,7 @@ namespace Mergeburgers.Core
 
     
 
-
+#if UNITY_EDITOR
     private void YandexServicesEditor()
     {
       Container.Bind<IAdService>().To<EditorAdService>().AsSingle();
@@ -32,7 +38,16 @@ namespace Mergeburgers.Core
       Container.Bind<ILeaderboardService>().To<EditorLeaderboardService>().AsSingle();
       Container.Bind<IIAPService>().To<EditorIAPService>().AsSingle();
     }
-
+#else
+    private void YandexServicesWebGL()
+    {
+      Container.Bind<IAdService>().To<WebGLAdService>().AsSingle();
+      Container.Bind<ICloudSaveService>().To<EditorCloudSaveService>().AsSingle();
+      Container.Bind<ILeaderboardService>().To<EditorLeaderboardService>().AsSingle();
+      Container.Bind<IIAPService>().To<EditorIAPService>().AsSingle();
+    }
+#endif
+    
     private void Signals()
     {
       // 1. Установка SignalBus в контейнер
