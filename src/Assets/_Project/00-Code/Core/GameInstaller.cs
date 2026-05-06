@@ -47,10 +47,12 @@ namespace Mergeburgers.Core
     private void Signals()
     {
       SignalBusInstaller.Install(Container);
+      
       Container.DeclareSignal<GameOverSignal>();
       Container.DeclareSignal<BurgerCreatedSignal>();
       Container.DeclareSignal<EnergySpentSignal>();
       Container.DeclareSignal<LevelMilestoneSignal>();
+      Container.DeclareSignal<SwipeDetectedSignal>();
     }
 
     private void Managers()
