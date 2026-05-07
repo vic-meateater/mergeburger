@@ -338,6 +338,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _board: {fileID: 676608838}
   _ingredientDatabase: {fileID: 11400000, guid: 57d64cd439f7c4da29d893b2020814bf, type: 2}
+  _evolutionChain: {fileID: 11400000, guid: c6b89a36bba5f4b85a92263add4c179f, type: 2}
   _swipeInput: {fileID: 667456236}
 --- !u!1 &590291094
 GameObject:
