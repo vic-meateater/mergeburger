@@ -20,6 +20,9 @@ namespace Mergeburgers.Core
             Container.Bind<SwipeInput>().FromInstance(_swipeInput).AsSingle();
             
             Container.Bind<MergeResolver>().AsSingle();
+            Container.Bind<TileSpawner>().AsSingle();
+            Container.Bind<GameOverChecker>().AsSingle();
+            
             Container.BindInterfacesAndSelfTo<BoardController>().AsSingle().NonLazy();
             
             // Дебаг-подписчик. Убрать на Day 25.
