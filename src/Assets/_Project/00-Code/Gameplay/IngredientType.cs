@@ -8,6 +8,12 @@ namespace Mergeburgers.Gameplay
         Cheese = 3,
         Lettuce = 4,
         Tomato = 5,
-        Sauce = 6
+        Sauce = 6,
+        
+        Hamburger = 100,
+        Cheeseburger = 101,
+        Veggieburger = 102,
+        BigMac = 103,
+        KingBurger = 200
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Mergeburgers.Data;
 using Mergeburgers.Events;
 using UnityEngine;
 using Zenject;
@@ -7,144 +6,170 @@ using Zenject;
 namespace Mergeburgers.Gameplay
 {
   /// <summary>
-  /// Чистая логика движения 2048-style. Не знает о Tile, transform, Unity.
-  /// Получает на вход состояние доски, направление, возвращает новое состояние + операции.
-  /// Тестируется юнит-тестами без движка (на Day 25 при желании).
+  /// Логика движения и схлопывания плиток (Day 12.5).
+  /// Правила:
+  ///   - 2 одинаковых соседа в линии → 1 (того же типа, уровень = max(а, б))
+  ///   - 3+ одинаковых одного уровня в линии → 1 (того же типа, уровень+1, cap=3)
+  ///   - 3+ смешанные уровни → группа считается по уровням отдельно
   /// </summary>
   public sealed class MergeResolver
   {
-    private readonly EvolutionChain _evolutionChain;
-
-    [Inject]
-    public MergeResolver(EvolutionChain evolutionChain)
-    {
-      _evolutionChain = evolutionChain;
-    }
+    private const int MaxLevel = 3;
 
     public sealed class ResolveResult
     {
-      public IngredientType[,] NewState;
-      public List<MergeOperation> Operations;
+      public IngredientCell[,] NewState;
       public bool AnyChange;
     }
 
-    public ResolveResult Resolve(IngredientType[,] state, SwipeDirection direction)
+    // [Inject]
+    // public MergeResolver()
+    // {
+    // }
+
+    public ResolveResult Resolve(IngredientCell[,] state, SwipeDirection direction)
     {
       int width = state.GetLength(0);
       int height = state.GetLength(1);
-
-      var newState = (IngredientType[,])state.Clone();
-      var ops = new List<MergeOperation>();
-      bool anyChange = false;
-
-      // Алгоритм 2048: для каждой "линии" (строки или столбца, в зависимости от направления)
-      // 1) собираем не-None плитки в список,
-      // 2) проходим по списку и сливаем соседние одинаковые,
-      // 3) раскладываем результат к стенке.
+      var newState = (IngredientCell[,]) state.Clone();
 
       switch (direction)
       {
         case SwipeDirection.Right:
           for (int y = 0; y < height; y++)
-            ProcessLine(newState, ops, y, width, height, isRow: true, toEnd: true);
+            ProcessLine(newState, y, width, height, isRow: true, toEnd: true);
           break;
         case SwipeDirection.Left:
           for (int y = 0; y < height; y++)
-            ProcessLine(newState, ops, y, width, height, isRow: true, toEnd: false);
+            ProcessLine(newState, y, width, height, isRow: true, toEnd: false);
           break;
         case SwipeDirection.Up:
           for (int x = 0; x < width; x++)
-            ProcessLine(newState, ops, x, width, height, isRow: false, toEnd: true);
+            ProcessLine(newState, x, width, height, isRow: false, toEnd: true);
           break;
         case SwipeDirection.Down:
           for (int x = 0; x < width; x++)
-            ProcessLine(newState, ops, x, width, height, isRow: false, toEnd: false);
+            ProcessLine(newState, x, width, height, isRow: false, toEnd: false);
           break;
       }
 
       // Проверка: было ли реальное изменение
+      bool anyChange = false;
       for (int x = 0; x < width && !anyChange; x++)
       for (int y = 0; y < height && !anyChange; y++)
-        if (state[x, y] != newState[x, y])
-          anyChange = true;
-
-      return new ResolveResult
       {
-        NewState = newState,
-        Operations = ops,
-        AnyChange = anyChange
-      };
+        var a = state[x, y];
+        var b = newState[x, y];
+        if (a.Type != b.Type || a.Level != b.Level)
+          anyChange = true;
+      }
+
+      return new ResolveResult {NewState = newState, AnyChange = anyChange};
     }
 
-    /// <summary>
-    /// Обрабатывает одну линию (строку или столбец) для движения в одну сторону.
-    /// </summary>
-    private void ProcessLine(IngredientType[,] state, List<MergeOperation> ops,
-      int lineIndex, int width, int height, bool isRow, bool toEnd)
+    private void ProcessLine(IngredientCell[,] state, int lineIndex, int width, int height, bool isRow, bool toEnd)
     {
       int length = isRow ? width : height;
 
-      // Собираем не-None плитки с их исходными позициями
-      var line = new List<(IngredientType type, Vector2Int from)>();
+      // Собираем не-пустые клетки в порядке обработки
+      var line = new List<IngredientCell>();
       for (int i = 0; i < length; i++)
       {
         var pos = isRow ? new Vector2Int(i, lineIndex) : new Vector2Int(lineIndex, i);
-        if (state[pos.x, pos.y] != IngredientType.None)
-          line.Add((state[pos.x, pos.y], pos));
+        if (!state[pos.x, pos.y].IsEmpty)
+          line.Add(state[pos.x, pos.y]);
       }
 
-      // Если двигаемся к концу (right/up), обрабатываем с конца
-      if (toEnd)
-        line.Reverse();
+      if (toEnd) line.Reverse();
 
-      // Сливаем соседние одинаковые
-      var merged = new List<(IngredientType type, Vector2Int from, Vector2Int? mergedFrom)>();
+      // Группируем подряд идущие одного типа (любого уровня) и применяем правила
+      var merged = new List<IngredientCell>();
       int idx = 0;
       while (idx < line.Count)
       {
-        if (idx + 1 < line.Count && line[idx].type == line[idx + 1].type)
-        {
-          var evolved = _evolutionChain.Evolve(line[idx].type);
-          if (evolved != IngredientType.None)
-          {
-            merged.Add((evolved, line[idx].from, line[idx + 1].from));
-            idx += 2;
-            continue;
-          }
-        }
+        int groupStart = idx;
+        var groupType = line[idx].Type;
 
-        merged.Add((line[idx].type, line[idx].from, null));
-        idx++;
+        // Расширяем группу: одинаковый тип, любой уровень
+        while (idx < line.Count && line[idx].Type == groupType)
+          idx++;
+
+        int groupSize = idx - groupStart;
+        var groupSlice = line.GetRange(groupStart, groupSize);
+
+        // Применяем правило к группе
+        ApplyMergeRules(groupSlice, merged);
       }
 
-      // Раскладываем merged обратно в state, начиная от стенки
-      // Сначала очищаем линию
+      // Очищаем линию
       for (int i = 0; i < length; i++)
       {
         var pos = isRow ? new Vector2Int(i, lineIndex) : new Vector2Int(lineIndex, i);
-        state[pos.x, pos.y] = IngredientType.None;
+        state[pos.x, pos.y] = IngredientCell.Empty;
       }
 
-      // Расставляем
+      // Раскладываем merged к стене
       for (int i = 0; i < merged.Count; i++)
       {
         int targetIdx = toEnd ? (length - 1 - i) : i;
         var targetPos = isRow ? new Vector2Int(targetIdx, lineIndex) : new Vector2Int(lineIndex, targetIdx);
-        state[targetPos.x, targetPos.y] = merged[i].type;
-
-        // Запись операций
-        if (merged[i].mergedFrom.HasValue)
-        {
-          // Это merge — две плитки превратились в одну
-          ops.Add(new MergeOperation(MergeOperationType.Merge, merged[i].from, targetPos, merged[i].type));
-          ops.Add(new MergeOperation(MergeOperationType.Merge, merged[i].mergedFrom.Value, targetPos, merged[i].type));
-        }
-        else if (merged[i].from != targetPos)
-        {
-          // Это движение — плитка переехала
-          ops.Add(new MergeOperation(MergeOperationType.Move, merged[i].from, targetPos, merged[i].type));
-        }
+        state[targetPos.x, targetPos.y] = merged[i];
       }
+    }
+
+    /// <summary>
+    /// Принимает связную группу одного типа (разных уровней).
+    /// Применяет правила:
+    ///   - 1 элемент: остаётся как есть
+    ///   - 2+ всех одного уровня: 3+ → lvl+1, 2 → тот же уровень
+    ///   - смесь уровней: разделяем по уровням, применяем то же правило к подгруппам
+    /// </summary>
+    private static void ApplyMergeRules(List<IngredientCell> group, List<IngredientCell> output)
+    {
+      if (group.Count == 0) return;
+
+      if (group.Count == 1)
+      {
+        output.Add(group[0]);
+        return;
+      }
+
+      // Все одного уровня?
+      int firstLevel = group[0].Level;
+      bool allSameLevel = true;
+      for (int i = 1; i < group.Count; i++)
+        if (group[i].Level != firstLevel)
+        {
+          allSameLevel = false;
+          break;
+        }
+
+      if (allSameLevel)
+      {
+        if (group.Count >= 3 && firstLevel < MaxLevel)
+        {
+          // 3+ одного уровня → 1 уровня выше
+          output.Add(IngredientCell.Of(group[0].Type, firstLevel + 1));
+        }
+        else
+        {
+          // 2 одного уровня, или 3+ на cap — всё в 1 того же уровня
+          output.Add(IngredientCell.Of(group[0].Type, firstLevel));
+        }
+
+        return;
+      }
+
+      // Смешанные уровни в группе:
+      // Правило: оставляем 1 плитку с максимальным уровнем в группе.
+      // Это покрывает случай "Bun lvl 1 + Bun lvl 2 → Bun lvl 2" и
+      // "Bun lvl 1 + Bun lvl 1 + Bun lvl 2 → Bun lvl 2" (младшие поглощены).
+      int maxLevel = firstLevel;
+      for (int i = 1; i < group.Count; i++)
+        if (group[i].Level > maxLevel)
+          maxLevel = group[i].Level;
+
+      output.Add(IngredientCell.Of(group[0].Type, maxLevel));
     }
   }
 }

@@ -15,14 +15,14 @@ namespace Mergeburgers.Gameplay
     /// Проверяет: если любой из 4 свайпов изменит доску, значит ходы есть.
     /// Использует MergeResolver на копии состояния — оригинал не трогает.
     /// </summary>
-    public bool IsGameOver(IngredientType[,] state)
+    public bool IsGameOver(IngredientCell[,] state)
     {
       // Если есть пустые клетки — точно есть валидный ход (двигай в их сторону)
       int w = state.GetLength(0);
       int h = state.GetLength(1);
       for (int x = 0; x < w; x++)
       for (int y = 0; y < h; y++)
-        if (state[x, y] == IngredientType.None)
+        if (state[x, y].IsEmpty)
           return false;
 
       // Доска полна — проверяем все 4 направления
@@ -34,7 +34,7 @@ namespace Mergeburgers.Gameplay
 
       foreach (var dir in directions)
       {
-        var stateCopy = (IngredientType[,])state.Clone();
+        var stateCopy = (IngredientCell[,]) state.Clone();
         var result = _resolver.Resolve(stateCopy, dir);
         if (result.AnyChange) return false;
       }

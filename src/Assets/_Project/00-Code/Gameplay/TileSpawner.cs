@@ -17,25 +17,25 @@ namespace Mergeburgers.Gameplay
     /// Спавнит 1 плитку на случайную пустую клетку.
     /// Возвращает позицию заспавненной, либо null если места нет.
     /// </summary>
-    public Vector2Int? SpawnOne(IngredientType[,] state)
+    public Vector2Int? SpawnOne(IngredientCell[,] state)
     {
       var emptyCells = FindEmptyCells(state);
       if (emptyCells.Count == 0) return null;
 
       var pos = emptyCells[Random.Range(0, emptyCells.Count)];
       var type = PickRandomBaseType();
-      state[pos.x, pos.y] = type;
+      state[pos.x, pos.y] = IngredientCell.Of(type, 0);
       return pos;
     }
 
-    private List<Vector2Int> FindEmptyCells(IngredientType[,] state)
+    private List<Vector2Int> FindEmptyCells(IngredientCell[,] state)
     {
       var result = new List<Vector2Int>();
       int w = state.GetLength(0);
       int h = state.GetLength(1);
       for (int x = 0; x < w; x++)
       for (int y = 0; y < h; y++)
-        if (state[x, y] == IngredientType.None)
+        if (state[x, y].IsEmpty)
           result.Add(new Vector2Int(x, y));
       return result;
     }

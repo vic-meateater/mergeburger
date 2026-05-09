@@ -30,7 +30,7 @@ namespace Mergeburgers.Gameplay
 
     private void OnSwipe(SwipeDetectedSignal s)
     {
-      Debug.Log($"[Input] Swipe {s.Direction}");
+      //Debug.Log($"[Input] Swipe {s.Direction}");
       _swipeDirection = s.Direction;
     }
   }
