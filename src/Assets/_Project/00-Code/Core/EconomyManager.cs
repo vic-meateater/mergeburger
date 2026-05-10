@@ -27,15 +27,18 @@ namespace Mergeburgers.Core
       _signalBus.Unsubscribe<BurgerSoldSignal>(OnBurgerSold);
     }
 
+    public int CurrentCoins => _saveManager.Current?.coins ?? 0;
+
     private void OnBurgerSold(BurgerSoldSignal s)
     {
       if (_saveManager.Current == null) return;
 
+      int oldValue = _saveManager.Current.coins;
       _saveManager.Current.coins += s.Coins;
-      Debug.Log($"[Economy] +{s.Coins} coins ({s.RecipeId}) → total {_saveManager.Current.coins}");
+      int newValue = _saveManager.Current.coins;
 
-      // Не save на каждое событие — отложим до game over (Day 13.5 / 19)
-      // Либо batched. На сегодня просто увеличиваем в памяти.
+      Debug.Log($"[Economy] +{s.Coins} ({s.RecipeId}) → {newValue}");
+      _signalBus.Fire(new CoinsChangedSignal(oldValue, newValue));
     }
   }
 }

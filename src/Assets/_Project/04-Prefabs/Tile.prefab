@@ -280,6 +280,7 @@ GameObject:
   - component: {fileID: 2619907922624218362}
   - component: {fileID: 5904028292458131004}
   - component: {fileID: 85999579939853473}
+  - component: {fileID: 5094534394829194483}
   m_Layer: 5
   m_Name: Tile
   m_TagString: Untagged
@@ -361,3 +362,15 @@ MonoBehaviour:
   _background: {fileID: 5904028292458131004}
   _letter: {fileID: 3740779300792343437}
   _levelLabel: {fileID: 2046562471921565306}
+--- !u!225 &5094534394829194483
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8097668106802317526}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
