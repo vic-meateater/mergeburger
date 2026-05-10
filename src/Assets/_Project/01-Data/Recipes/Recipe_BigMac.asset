@@ -15,4 +15,5 @@ MonoBehaviour:
   <DisplayName>k__BackingField: BigMac
   <Pattern>k__BackingField: 0100000002000000030000000400000001000000
   <Result>k__BackingField: 103
-  <SellPrice>k__BackingField: 100
+  <BaseSellPrice>k__BackingField: 100
+  <MinLevelRequired>k__BackingField: -1

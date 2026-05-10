@@ -15,4 +15,5 @@ MonoBehaviour:
   <DisplayName>k__BackingField: Hamburger
   <Pattern>k__BackingField: 010000000200000001000000
   <Result>k__BackingField: 100
-  <SellPrice>k__BackingField: 10
+  <BaseSellPrice>k__BackingField: 10
+  <MinLevelRequired>k__BackingField: -1

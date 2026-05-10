@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a0d3a222c93247499eaecd365e9b55e5, type: 3}
-  m_Name: Recipe_Cheeseburger
+  m_Name: Recipe_KingBurger
   m_EditorClassIdentifier: 
-  <DisplayName>k__BackingField: Cheeseburger
-  <Pattern>k__BackingField: 01000000020000000300000001000000
-  <Result>k__BackingField: 101
-  <BaseSellPrice>k__BackingField: 25
-  <MinLevelRequired>k__BackingField: -1
+  <DisplayName>k__BackingField: KingBurger
+  <Pattern>k__BackingField: 0100000002000000030000000400000005000000
+  <Result>k__BackingField: 200
+  <BaseSellPrice>k__BackingField: 1000
+  <MinLevelRequired>k__BackingField: 3

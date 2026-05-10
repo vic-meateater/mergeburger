@@ -87,17 +87,26 @@ namespace Mergeburgers.Gameplay
       int idx = 0;
       while (idx < line.Count)
       {
-        int groupStart = idx;
-        var groupType = line[idx].Type;
+        var firstCell = line[idx];
 
-        // Расширяем группу: одинаковый тип, любой уровень
+        // Бургеры не сливаются: каждый идёт сам по себе
+        if (firstCell.Type.IsBurger())
+        {
+          merged.Add(firstCell);
+          idx++;
+          continue;
+        }
+
+        int groupStart = idx;
+        var groupType = firstCell.Type;
+
+        // Базовые ингредиенты: расширяем группу, пока тот же тип
         while (idx < line.Count && line[idx].Type == groupType)
           idx++;
 
         int groupSize = idx - groupStart;
         var groupSlice = line.GetRange(groupStart, groupSize);
 
-        // Применяем правило к группе
         ApplyMergeRules(groupSlice, merged);
       }
 

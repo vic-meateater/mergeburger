@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6cb7ab374af542228769254d59a79ad9, type: 3}
-  m_Name: Ingredient_Veggieburger
+  m_Name: Ingredient_KingBurger
   m_EditorClassIdentifier: 
-  <Type>k__BackingField: 102
-  <DisplayName>k__BackingField: Veggieburger
-  <PlaceholderColor>k__BackingField: {r: 0.13333334, g: 0.54509807, b: 0.13333334, a: 1}
-  <PlaceholderLetter>k__BackingField: Vg
+  <Type>k__BackingField: 200
+  <DisplayName>k__BackingField: KingBurger
+  <PlaceholderColor>k__BackingField: {r: 0.101960786, g: 0.101960786, b: 0.101960786, a: 1}
+  <PlaceholderLetter>k__BackingField: KB

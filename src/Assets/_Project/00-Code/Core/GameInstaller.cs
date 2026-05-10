@@ -53,11 +53,13 @@ namespace Mergeburgers.Core
       Container.DeclareSignal<EnergySpentSignal>();
       Container.DeclareSignal<LevelMilestoneSignal>();
       Container.DeclareSignal<SwipeDetectedSignal>();
+      Container.DeclareSignal<BurgerSoldSignal>();
     }
 
     private void Managers()
     {
       Container.Bind<SaveManager>().AsSingle();
+      Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
     }
 
     private void Dev()

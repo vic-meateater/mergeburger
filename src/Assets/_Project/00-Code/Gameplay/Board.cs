@@ -25,6 +25,7 @@ namespace Mergeburgers.Gameplay
     private IngredientCell[,] _state;
 
     private bool _isGameOver;
+    private BurgerLifecycle _burgerLifecycle;
 
     [Inject]
     public void Construct(
@@ -33,6 +34,7 @@ namespace Mergeburgers.Gameplay
       RecipeMatcher recipeMatcher,
       TileSpawner tileSpawner,
       GameOverChecker gameOverChecker,
+      BurgerLifecycle burgerLifecycle,
       SignalBus signalBus
     )
     {
@@ -41,6 +43,7 @@ namespace Mergeburgers.Gameplay
       _recipeMatcher = recipeMatcher;
       _tileSpawner = tileSpawner;
       _gameOverChecker = gameOverChecker;
+      _burgerLifecycle = burgerLifecycle;
       _signalBus = signalBus;
     }
 
@@ -53,7 +56,6 @@ namespace Mergeburgers.Gameplay
     {
       if (_isGameOver) return;
 
-      // 1. Движение + эволюции пар
       var resolveResult = _mergeResolver.Resolve(_state, direction);
       if (!resolveResult.AnyChange)
       {
@@ -63,33 +65,31 @@ namespace Mergeburgers.Gameplay
 
       _state = resolveResult.NewState;
 
-      // 2. Рецептурный merge
-      // var matchResult = _recipeMatcher.FindAndApply(_state);
-      // _state = matchResult.NewState;
+      // Тик жизни СУЩЕСТВУЮЩИХ бургеров и продажа экспайренных — ДО рецептов
+      _state = _burgerLifecycle.TickAndSellExpired(_state);
 
-      // foreach (var match in matchResult.Matches)
-      // {
-      //   Debug.Log(
-      //     $"[Board] Recipe matched: {match.Recipe.DisplayName} at {match.CenterPosition} (+{match.Recipe.SellPrice})");
-      //   _signalBus.Fire(new BurgerCreatedSignal(
-      //     recipeId: match.Recipe.DisplayName,
-      //     reward: match.Recipe.SellPrice,
-      //     boardPosition: match.CenterPosition
-      //   ));
-      // }
+      // Только потом ищем новые рецепты — свежий бургер будет с life=3
+      var matchResult = _recipeMatcher.FindAndApply(_state);
+      _state = matchResult.NewState;
 
-      // 3. Спавн новой плитки
+      foreach (var match in matchResult.Matches)
+      {
+        Debug.Log($"[Board] Recipe matched: {match.Recipe.DisplayName} ×{match.Multiplier}");
+        _signalBus.Fire(new BurgerCreatedSignal(
+          recipeId: match.Recipe.DisplayName,
+          reward: match.FinalPrice,
+          boardPosition: match.CenterPosition
+        ));
+      }
+
       _tileSpawner.SpawnOne(_state);
-
-      // 4. Перерисовка
       RedrawGrid();
 
-      // 5. Game Over check
       if (_gameOverChecker.IsGameOver(_state))
       {
         _isGameOver = true;
         Debug.Log("[Board] GAME OVER");
-        _signalBus.Fire(new GameOverSignal(finalScore: 0, burgersCreated: 0));
+        _signalBus.Fire(new GameOverSignal(0, 0));
       }
     }
 
@@ -97,7 +97,7 @@ namespace Mergeburgers.Gameplay
     {
       _grid = new Tile[_width, _height];
       _state = new IngredientCell[_width, _height];
-      
+
       for (int x = 0; x < _width; x++)
       for (int y = 0; y < _height; y++)
       {
@@ -123,7 +123,7 @@ namespace Mergeburgers.Gameplay
       for (int x = 0; x < _width; x++)
       for (int y = 0; y < _height; y++)
       {
-        var cell  = _state[x, y];
+        var cell = _state[x, y];
         var data = cell.IsEmpty ? null : _ingredientDatabase.Get(cell.Type);
         _grid[x, y].SetCell(cell, data);
       }

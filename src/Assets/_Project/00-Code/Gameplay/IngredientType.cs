@@ -16,4 +16,19 @@ namespace Mergeburgers.Gameplay
         BigMac = 103,
         KingBurger = 200
     }
+    
+    public static class IngredientTypeExtensions
+    {
+        /// <summary>
+        /// Базовые ингредиенты (1-99). Сливаются между собой по правилу 2/3+.
+        /// </summary>
+        public static bool IsBaseIngredient(this IngredientType type)
+            => (int)type > 0 && (int)type < 100;
+
+        /// <summary>
+        /// Готовые бургеры (100+). Не сливаются, движутся до препятствия.
+        /// </summary>
+        public static bool IsBurger(this IngredientType type)
+            => (int)type >= 100;
+    }
 }

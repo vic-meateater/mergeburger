@@ -37,10 +37,18 @@ namespace Mergeburgers.Gameplay
 
       if (_levelLabel != null)
       {
-        if (cell.Level == 1)      _levelLabel.text = "*";
-        else if (cell.Level == 2) _levelLabel.text = "**";
-        else if (cell.Level == 3) _levelLabel.text = "***";
-        else                       _levelLabel.text = string.Empty;
+        // Бургеры показывают остаток жизни в углу. Базовые ингредиенты показывают звёзды.
+        if (cell.Type.IsBurger())
+        {
+          _levelLabel.text = cell.LifeRemaining.ToString();
+        }
+        else
+        {
+          if (cell.Level == 1) _levelLabel.text = "*";
+          else if (cell.Level == 2) _levelLabel.text = "**";
+          else if (cell.Level == 3) _levelLabel.text = "***";
+          else _levelLabel.text = string.Empty;
+        }
       }
     }
   }

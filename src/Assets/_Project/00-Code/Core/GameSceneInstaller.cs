@@ -20,6 +20,7 @@ namespace Mergeburgers.Core
             
             Container.Bind<RecipeDatabase>().FromInstance(_recipeDatabase).AsSingle();
             Container.Bind<RecipeMatcher>().AsSingle();
+            Container.Bind<BurgerLifecycle>().AsSingle();
             
             Container.Bind<MergeResolver>().AsSingle();
             Container.Bind<TileSpawner>().AsSingle();
