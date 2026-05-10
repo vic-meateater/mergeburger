@@ -26,6 +26,8 @@ namespace Mergeburgers.Core
             Container.Bind<TileSpawner>().AsSingle();
             Container.Bind<GameOverChecker>().AsSingle();
             
+            Container.Bind<BoardAnimator>().AsSingle();
+            
             Container.BindInterfacesAndSelfTo<BoardController>().AsSingle().NonLazy();
             
             // Дебаг-подписчик. Убрать на Day 25.

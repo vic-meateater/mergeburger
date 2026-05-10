@@ -19,13 +19,15 @@ namespace Mergeburgers.Gameplay
     private RecipeMatcher _recipeMatcher;
     private TileSpawner _tileSpawner;
     private GameOverChecker _gameOverChecker;
+    private BurgerLifecycle _burgerLifecycle;
+    private BoardAnimator _animator;
     private SignalBus _signalBus;
 
     private Tile[,] _grid;
     private IngredientCell[,] _state;
-
+    private Vector2[,] _targetPositions; // кеш позиций каждой клетки доски
     private bool _isGameOver;
-    private BurgerLifecycle _burgerLifecycle;
+    private bool _isAnimating;
 
     [Inject]
     public void Construct(
@@ -35,6 +37,7 @@ namespace Mergeburgers.Gameplay
       TileSpawner tileSpawner,
       GameOverChecker gameOverChecker,
       BurgerLifecycle burgerLifecycle,
+      BoardAnimator animator,
       SignalBus signalBus
     )
     {
@@ -44,6 +47,7 @@ namespace Mergeburgers.Gameplay
       _tileSpawner = tileSpawner;
       _gameOverChecker = gameOverChecker;
       _burgerLifecycle = burgerLifecycle;
+      _animator = animator;
       _signalBus = signalBus;
     }
 
@@ -52,9 +56,9 @@ namespace Mergeburgers.Gameplay
       SpawnGrid();
     }
 
-    public void HandleSwipe(SwipeDirection direction)
+    public async void HandleSwipe(SwipeDirection direction)
     {
-      if (_isGameOver) return;
+      if (_isGameOver || _isAnimating) return;
 
       var resolveResult = _mergeResolver.Resolve(_state, direction);
       if (!resolveResult.AnyChange)
@@ -63,40 +67,81 @@ namespace Mergeburgers.Gameplay
         return;
       }
 
-      _state = resolveResult.NewState;
+      _isAnimating = true;
 
-      // Тик жизни СУЩЕСТВУЮЩИХ бургеров и продажа экспайренных — ДО рецептов
-      _state = _burgerLifecycle.TickAndSellExpired(_state);
-
-      // Только потом ищем новые рецепты — свежий бургер будет с life=3
-      var matchResult = _recipeMatcher.FindAndApply(_state);
-      _state = matchResult.NewState;
-
-      foreach (var match in matchResult.Matches)
+      try
       {
-        Debug.Log($"[Board] Recipe matched: {match.Recipe.DisplayName} ×{match.Multiplier}");
-        _signalBus.Fire(new BurgerCreatedSignal(
-          recipeId: match.Recipe.DisplayName,
-          reward: match.FinalPrice,
-          boardPosition: match.CenterPosition
-        ));
+        // 1. Анимация движения по операциям резолвера
+        await _animator.PlayMoveOperations(resolveResult.Operations, _grid, _targetPositions);
+
+        // 2. Применение нового состояния (с уровнями) и тик lifecycle
+        _state = resolveResult.NewState;
+        _state = _burgerLifecycle.TickAndSellExpired(_state);
+
+        // 3. Рецепты
+        var matchResult = _recipeMatcher.FindAndApply(_state);
+        _state = matchResult.NewState;
+
+        // 4. Перерисовка состояния (приведение Tile-объектов в правильное место и вид)
+        ResetTilePositions();
+        RedrawGrid();
+
+        // 5. Анимации новых бургеров
+        foreach (var match in matchResult.Matches)
+        {
+          Debug.Log($"[Board] Recipe matched: {match.Recipe.DisplayName} ×{match.Multiplier}");
+          _signalBus.Fire(new BurgerCreatedSignal(
+            recipeId: match.Recipe.DisplayName,
+            reward: match.FinalPrice,
+            boardPosition: match.CenterPosition
+          ));
+
+          var burgerTile = _grid[match.CenterPosition.x, match.CenterPosition.y];
+          await _animator.PlayBurgerCreated(burgerTile);
+        }
+
+        // 6. Спавн новой плитки
+        _tileSpawner.SpawnOne(_state);
+        RedrawGrid();
+
+        // 7. Game Over check
+        if (_gameOverChecker.IsGameOver(_state))
+        {
+          _isGameOver = true;
+          Debug.Log("[Board] GAME OVER");
+          _signalBus.Fire(new GameOverSignal(0, 0));
+        }
       }
-
-      _tileSpawner.SpawnOne(_state);
-      RedrawGrid();
-
-      if (_gameOverChecker.IsGameOver(_state))
+      finally
       {
-        _isGameOver = true;
-        Debug.Log("[Board] GAME OVER");
-        _signalBus.Fire(new GameOverSignal(0, 0));
+        _isAnimating = false;
       }
     }
-
+    
+    /// <summary>
+    /// После перемещения через анимации Tile-объекты в _grid находятся не на своих "сетка-позициях".
+    /// Этот метод приводит координаты grid[x,y] к ожидаемому target[x,y] и одновременно перепривязывает
+    /// Tile-объекты в _grid согласно новому состоянию (т.е. правильный Tile в правильной клетке).
+    ///
+    /// Простая версия: всегда возвращаем все плитки на их сетка-позиции по координатам в массиве _grid.
+    /// </summary>
+    private void ResetTilePositions()
+    {
+      for (int x = 0; x < _width; x++)
+      for (int y = 0; y < _height; y++)
+      {
+        var tile = _grid[x, y];
+        if (tile == null) continue;
+        var rect = tile.GetComponent<RectTransform>();
+        rect.anchoredPosition = _targetPositions[x, y];
+      }
+    }
+    
     private void SpawnGrid()
     {
       _grid = new Tile[_width, _height];
       _state = new IngredientCell[_width, _height];
+      _targetPositions = new Vector2[_width, _height];
 
       for (int x = 0; x < _width; x++)
       for (int y = 0; y < _height; y++)
@@ -105,7 +150,9 @@ namespace Mergeburgers.Gameplay
         tile.BoardPosition = new Vector2Int(x, y);
 
         var rect = tile.GetComponent<RectTransform>();
-        rect.anchoredPosition = CalculateTilePosition(x, y);
+        var pos = CalculateTilePosition(x, y);
+        _targetPositions[x, y] = pos;
+        rect.anchoredPosition = pos;
         rect.sizeDelta = new Vector2(_tileSize, _tileSize);
 
         if (Random.value < 0.6f)

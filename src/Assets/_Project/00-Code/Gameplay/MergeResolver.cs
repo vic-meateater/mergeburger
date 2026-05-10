@@ -5,13 +5,6 @@ using Zenject;
 
 namespace Mergeburgers.Gameplay
 {
-  /// <summary>
-  /// Логика движения и схлопывания плиток (Day 12.5).
-  /// Правила:
-  ///   - 2 одинаковых соседа в линии → 1 (того же типа, уровень = max(а, б))
-  ///   - 3+ одинаковых одного уровня в линии → 1 (того же типа, уровень+1, cap=3)
-  ///   - 3+ смешанные уровни → группа считается по уровням отдельно
-  /// </summary>
   public sealed class MergeResolver
   {
     private const int MaxLevel = 3;
@@ -19,41 +12,42 @@ namespace Mergeburgers.Gameplay
     public sealed class ResolveResult
     {
       public IngredientCell[,] NewState;
+      public List<MergeOperation> Operations;
       public bool AnyChange;
     }
 
-    // [Inject]
-    // public MergeResolver()
-    // {
-    // }
+    [Inject]
+    public MergeResolver()
+    {
+    }
 
     public ResolveResult Resolve(IngredientCell[,] state, SwipeDirection direction)
     {
       int width = state.GetLength(0);
       int height = state.GetLength(1);
       var newState = (IngredientCell[,]) state.Clone();
+      var ops = new List<MergeOperation>();
 
       switch (direction)
       {
         case SwipeDirection.Right:
           for (int y = 0; y < height; y++)
-            ProcessLine(newState, y, width, height, isRow: true, toEnd: true);
+            ProcessLine(newState, ops, y, width, height, isRow: true, toEnd: true);
           break;
         case SwipeDirection.Left:
           for (int y = 0; y < height; y++)
-            ProcessLine(newState, y, width, height, isRow: true, toEnd: false);
+            ProcessLine(newState, ops, y, width, height, isRow: true, toEnd: false);
           break;
         case SwipeDirection.Up:
           for (int x = 0; x < width; x++)
-            ProcessLine(newState, x, width, height, isRow: false, toEnd: true);
+            ProcessLine(newState, ops, x, width, height, isRow: false, toEnd: true);
           break;
         case SwipeDirection.Down:
           for (int x = 0; x < width; x++)
-            ProcessLine(newState, x, width, height, isRow: false, toEnd: false);
+            ProcessLine(newState, ops, x, width, height, isRow: false, toEnd: false);
           break;
       }
 
-      // Проверка: было ли реальное изменение
       bool anyChange = false;
       for (int x = 0; x < width && !anyChange; x++)
       for (int y = 0; y < height && !anyChange; y++)
@@ -64,35 +58,35 @@ namespace Mergeburgers.Gameplay
           anyChange = true;
       }
 
-      return new ResolveResult {NewState = newState, AnyChange = anyChange};
+      return new ResolveResult {NewState = newState, Operations = ops, AnyChange = anyChange};
     }
 
-    private void ProcessLine(IngredientCell[,] state, int lineIndex, int width, int height, bool isRow, bool toEnd)
+    private void ProcessLine(IngredientCell[,] state, List<MergeOperation> ops,
+      int lineIndex, int width, int height, bool isRow, bool toEnd)
     {
       int length = isRow ? width : height;
 
-      // Собираем не-пустые клетки в порядке обработки
-      var line = new List<IngredientCell>();
+      // Собираем не-пустые клетки + их исходные позиции
+      var line = new List<(IngredientCell cell, Vector2Int from)>();
       for (int i = 0; i < length; i++)
       {
         var pos = isRow ? new Vector2Int(i, lineIndex) : new Vector2Int(lineIndex, i);
         if (!state[pos.x, pos.y].IsEmpty)
-          line.Add(state[pos.x, pos.y]);
+          line.Add((state[pos.x, pos.y], pos));
       }
 
       if (toEnd) line.Reverse();
 
-      // Группируем подряд идущие одного типа (любого уровня) и применяем правила
-      var merged = new List<IngredientCell>();
+      // Группируем и применяем правила, сохраняя источники для каждой результирующей плитки
+      var merged = new List<(IngredientCell result, List<Vector2Int> sources)>();
       int idx = 0;
       while (idx < line.Count)
       {
-        var firstCell = line[idx];
+        var firstCell = line[idx].cell;
 
-        // Бургеры не сливаются: каждый идёт сам по себе
         if (firstCell.Type.IsBurger())
         {
-          merged.Add(firstCell);
+          merged.Add((firstCell, new List<Vector2Int> {line[idx].from}));
           idx++;
           continue;
         }
@@ -100,14 +94,17 @@ namespace Mergeburgers.Gameplay
         int groupStart = idx;
         var groupType = firstCell.Type;
 
-        // Базовые ингредиенты: расширяем группу, пока тот же тип
-        while (idx < line.Count && line[idx].Type == groupType)
+        while (idx < line.Count && line[idx].cell.Type == groupType)
           idx++;
 
         int groupSize = idx - groupStart;
         var groupSlice = line.GetRange(groupStart, groupSize);
 
-        ApplyMergeRules(groupSlice, merged);
+        var resultCell = ApplyMergeRules(groupSlice);
+        var sources = new List<Vector2Int>(groupSize);
+        for (int j = 0; j < groupSize; j++) sources.Add(groupSlice[j].from);
+
+        merged.Add((resultCell, sources));
       }
 
       // Очищаем линию
@@ -117,37 +114,38 @@ namespace Mergeburgers.Gameplay
         state[pos.x, pos.y] = IngredientCell.Empty;
       }
 
-      // Раскладываем merged к стене
+      // Раскладываем merged к стене и записываем операции
       for (int i = 0; i < merged.Count; i++)
       {
         int targetIdx = toEnd ? (length - 1 - i) : i;
         var targetPos = isRow ? new Vector2Int(targetIdx, lineIndex) : new Vector2Int(lineIndex, targetIdx);
-        state[targetPos.x, targetPos.y] = merged[i];
+        state[targetPos.x, targetPos.y] = merged[i].result;
+
+        var sources = merged[i].sources;
+
+        if (sources.Count == 1)
+        {
+          // Просто движение
+          if (sources[0] != targetPos)
+            ops.Add(new MergeOperation(MergeOperationType.Move, sources[0], targetPos, merged[i].result.Type));
+        }
+        else
+        {
+          // Группа схлопнулась: все источники "уехали" в targetPos
+          foreach (var src in sources)
+            ops.Add(new MergeOperation(MergeOperationType.Merge, src, targetPos, merged[i].result.Type));
+        }
       }
     }
 
-    /// <summary>
-    /// Принимает связную группу одного типа (разных уровней).
-    /// Применяет правила:
-    ///   - 1 элемент: остаётся как есть
-    ///   - 2+ всех одного уровня: 3+ → lvl+1, 2 → тот же уровень
-    ///   - смесь уровней: разделяем по уровням, применяем то же правило к подгруппам
-    /// </summary>
-    private static void ApplyMergeRules(List<IngredientCell> group, List<IngredientCell> output)
+    private static IngredientCell ApplyMergeRules(List<(IngredientCell cell, Vector2Int from)> group)
     {
-      if (group.Count == 0) return;
+      if (group.Count == 1) return group[0].cell;
 
-      if (group.Count == 1)
-      {
-        output.Add(group[0]);
-        return;
-      }
-
-      // Все одного уровня?
-      int firstLevel = group[0].Level;
+      int firstLevel = group[0].cell.Level;
       bool allSameLevel = true;
       for (int i = 1; i < group.Count; i++)
-        if (group[i].Level != firstLevel)
+        if (group[i].cell.Level != firstLevel)
         {
           allSameLevel = false;
           break;
@@ -156,29 +154,17 @@ namespace Mergeburgers.Gameplay
       if (allSameLevel)
       {
         if (group.Count >= 3 && firstLevel < MaxLevel)
-        {
-          // 3+ одного уровня → 1 уровня выше
-          output.Add(IngredientCell.Of(group[0].Type, firstLevel + 1));
-        }
-        else
-        {
-          // 2 одного уровня, или 3+ на cap — всё в 1 того же уровня
-          output.Add(IngredientCell.Of(group[0].Type, firstLevel));
-        }
-
-        return;
+          return IngredientCell.Of(group[0].cell.Type, firstLevel + 1);
+        return IngredientCell.Of(group[0].cell.Type, firstLevel);
       }
 
-      // Смешанные уровни в группе:
-      // Правило: оставляем 1 плитку с максимальным уровнем в группе.
-      // Это покрывает случай "Bun lvl 1 + Bun lvl 2 → Bun lvl 2" и
-      // "Bun lvl 1 + Bun lvl 1 + Bun lvl 2 → Bun lvl 2" (младшие поглощены).
+      // Смешанные уровни: оставляем максимальный
       int maxLevel = firstLevel;
       for (int i = 1; i < group.Count; i++)
-        if (group[i].Level > maxLevel)
-          maxLevel = group[i].Level;
+        if (group[i].cell.Level > maxLevel)
+          maxLevel = group[i].cell.Level;
 
-      output.Add(IngredientCell.Of(group[0].Type, maxLevel));
+      return IngredientCell.Of(group[0].cell.Type, maxLevel);
     }
   }
 }
