@@ -1,4 +1,5 @@
 ﻿using Mergeburgers.Events;
+using Mergeburgers.Meta;
 using Mergeburgers.Yandex;
 using Zenject;
 
@@ -61,6 +62,8 @@ namespace Mergeburgers.Core
     {
       Container.Bind<SaveManager>().AsSingle();
       Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
+      Container.Bind<IdleIncomeCalculator>().AsSingle();
+      Container.BindInterfacesAndSelfTo<RecipeUnlockTracker>().AsSingle().NonLazy();
     }
 
     private void Dev()
