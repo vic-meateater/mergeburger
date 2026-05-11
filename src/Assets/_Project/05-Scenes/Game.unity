@@ -1271,6 +1271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _label: {fileID: 1773746353}
+  _mode: 1
   _rollDuration: 0.5
 --- !u!114 &2045037271
 MonoBehaviour:

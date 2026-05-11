@@ -20,15 +20,15 @@ namespace Mergeburgers.Meta
 
     public void Initialize()
     {
-      _signalBus.Subscribe<BurgerCreatedSignal>(OnBurgerCreated);
+      _signalBus.Subscribe<BurgerSoldSignal>(OnBurgerSold);
     }
 
     public void Dispose()
     {
-      _signalBus.Unsubscribe<BurgerCreatedSignal>(OnBurgerCreated);
+      _signalBus.Unsubscribe<BurgerSoldSignal>(OnBurgerSold);
     }
 
-    private void OnBurgerCreated(BurgerCreatedSignal s)
+    private void OnBurgerSold(BurgerSoldSignal s)
     {
       if (_saveManager.Current?.unlockedRecipes == null) return;
       if (_saveManager.Current.unlockedRecipes.Contains(s.RecipeId)) return;

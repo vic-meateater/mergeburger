@@ -12,20 +12,20 @@ namespace Mergeburgers.Meta
   /// </summary>
   public sealed class IdleIncomeTicker : MonoBehaviour
   {
-    private SignalBus _signalBus;
     private SaveManager _saveManager;
+    private EconomyManager _economy;
     private IdleIncomeCalculator _calculator;
 
     private long _lastTickUnix;
 
     [Inject]
     public void Construct(
-      SignalBus signalBus,
       SaveManager saveManager,
+      EconomyManager economy,
       IdleIncomeCalculator calculator)
     {
-      _signalBus = signalBus;
       _saveManager = saveManager;
+      _economy = economy;
       _calculator = calculator;
     }
 
@@ -44,7 +44,7 @@ namespace Mergeburgers.Meta
 
       int rate = _calculator.CalculateRate(_saveManager.Current);
       if (rate > 0)
-        AddCoins((int) (elapsed * rate));
+        _economy.AddBankCoins((int)(elapsed * rate));
 
       _lastTickUnix = now;
     }
@@ -71,12 +71,17 @@ namespace Mergeburgers.Meta
       if (save == null) return;
 
       long nowUnix = NowUnix();
+      long elapsed = nowUnix - save.lastSessionEndTime;
       int earned = _calculator.CalculateOfflineEarnings(save, nowUnix);
 
       if (earned > 0)
       {
-        Debug.Log($"[Idle] Offline earnings: +{earned}");
-        AddCoins(earned);
+        if (elapsed >= 60)
+          Debug.Log($"[Idle] Offline earnings (away {elapsed}s): +{earned}");
+        else
+          Debug.Log($"[Idle] Background earnings ({elapsed}s): +{earned}");
+
+        _economy.AddBankCoins(earned);
       }
 
       save.lastSessionEndTime = nowUnix;
@@ -87,16 +92,7 @@ namespace Mergeburgers.Meta
       if (_saveManager?.Current != null)
         _saveManager.Current.lastSessionEndTime = NowUnix();
     }
-
-    private void AddCoins(int amount)
-    {
-      if (_saveManager.Current == null) return;
-      int oldValue = _saveManager.Current.coins;
-      _saveManager.Current.coins += amount;
-      int newValue = _saveManager.Current.coins;
-      _signalBus.Fire(new CoinsChangedSignal(oldValue, newValue));
-    }
-
+    
     private static long NowUnix() => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
   }
 }

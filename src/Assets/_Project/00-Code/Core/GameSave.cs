@@ -17,6 +17,7 @@ namespace Mergeburgers.Core
   {
     public int version;
     public int coins;
+    public int sessionCoins;
     public int energy;
     public long energyLastFullTime; // unix seconds, для расчёта восстановления
     public long lastSessionEndTime; // unix seconds, для расчёта idle-дохода

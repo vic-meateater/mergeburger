@@ -7,13 +7,16 @@ using Zenject;
 
 namespace Mergeburgers.UI
 {
-  /// <summary>
-  /// HUD с количеством монет в углу экрана.
-  /// При изменении монет — плавно "прокатывает" значение через DOTween.
-  /// </summary>
+  public enum CoinsHudMode
+  {
+    Bank,
+    Session
+  }
+
   public sealed class CoinsHud : MonoBehaviour
   {
     [SerializeField] private TextMeshProUGUI _label;
+    [SerializeField] private CoinsHudMode _mode = CoinsHudMode.Bank;
     [SerializeField] private float _rollDuration = 0.5f;
 
     private SignalBus _signalBus;
@@ -31,31 +34,40 @@ namespace Mergeburgers.UI
 
     private void Start()
     {
-      // Стартовое значение из SaveManager (через EconomyManager)
-      _displayedValue = _economy.CurrentCoins;
+      _displayedValue = _mode == CoinsHudMode.Bank ? _economy.CurrentBank : _economy.CurrentSession;
       UpdateLabel();
 
-      _signalBus.Subscribe<CoinsChangedSignal>(OnCoinsChanged);
+      if (_mode == CoinsHudMode.Bank)
+        _signalBus.Subscribe<BankCoinsChangedSignal>(OnBankChanged);
+      else
+        _signalBus.Subscribe<SessionCoinsChangedSignal>(OnSessionChanged);
     }
 
     private void OnDestroy()
     {
-      if (_signalBus != null)
-        _signalBus.Unsubscribe<CoinsChangedSignal>(OnCoinsChanged);
+      if (_signalBus == null) return;
+      if (_mode == CoinsHudMode.Bank)
+        _signalBus.Unsubscribe<BankCoinsChangedSignal>(OnBankChanged);
+      else
+        _signalBus.Unsubscribe<SessionCoinsChangedSignal>(OnSessionChanged);
 
       _activeTween?.Kill();
     }
 
-    private void OnCoinsChanged(CoinsChangedSignal s)
+    private void OnBankChanged(BankCoinsChangedSignal s) => RollTo(s.NewValue);
+    private void OnSessionChanged(SessionCoinsChangedSignal s) => RollTo(s.NewValue);
+
+    private void RollTo(int target)
     {
       _activeTween?.Kill();
-
-      // Плавно прокатим _displayedValue от текущего к s.NewValue
-      int from = _displayedValue;
       _activeTween = DOTween.To(
         () => _displayedValue,
-        v => { _displayedValue = v; UpdateLabel(); },
-        s.NewValue,
+        v =>
+        {
+          _displayedValue = v;
+          UpdateLabel();
+        },
+        target,
         _rollDuration
       ).SetEase(Ease.OutQuad);
     }

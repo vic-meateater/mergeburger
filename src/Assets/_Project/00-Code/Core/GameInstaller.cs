@@ -55,7 +55,11 @@ namespace Mergeburgers.Core
       Container.DeclareSignal<LevelMilestoneSignal>();
       Container.DeclareSignal<SwipeDetectedSignal>();
       Container.DeclareSignal<BurgerSoldSignal>();
-      Container.DeclareSignal<CoinsChangedSignal>();
+      Container.DeclareSignal<SessionCoinsChangedSignal>();
+      Container.DeclareSignal<BankCoinsChangedSignal>();
+      
+      
+      //Container.DeclareSignal<CoinsChangedSignal>();
     }
 
     private void Managers()
