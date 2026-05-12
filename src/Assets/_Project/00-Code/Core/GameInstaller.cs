@@ -57,7 +57,7 @@ namespace Mergeburgers.Core
       Container.DeclareSignal<BurgerSoldSignal>();
       Container.DeclareSignal<SessionCoinsChangedSignal>();
       Container.DeclareSignal<BankCoinsChangedSignal>();
-      
+      Container.DeclareSignal<EnergyChangedSignal>();
       
       //Container.DeclareSignal<CoinsChangedSignal>();
     }
@@ -65,8 +65,9 @@ namespace Mergeburgers.Core
     private void Managers()
     {
       Container.Bind<SaveManager>().AsSingle();
-      Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
       Container.Bind<IdleIncomeCalculator>().AsSingle();
+      Container.Bind<EnergyManager>().AsSingle();
+      Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<RecipeUnlockTracker>().AsSingle().NonLazy();
     }
 

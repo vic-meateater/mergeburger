@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mergeburgers.Events;
 using Mergeburgers.Data;
 using UnityEngine;
@@ -7,13 +8,17 @@ namespace Mergeburgers.Gameplay
 {
   public sealed class Board : MonoBehaviour
   {
-    [Header("Layout")] [SerializeField] private RectTransform _container;
+    [Header("Layout")] 
+    [SerializeField] private RectTransform _container;
     [SerializeField] private Tile _tilePrefab;
     [SerializeField] private int _width = 5;
     [SerializeField] private int _height = 5;
     [SerializeField] private float _tileSize = 160f;
     [SerializeField] private float _spacing = 8f;
 
+    public int CurrentSessionCoins { get; private set; }
+    public bool IsGameOver => _isGameOver;
+    
     private IngredientDatabase _ingredientDatabase;
     private MergeResolver _mergeResolver;
     private RecipeMatcher _recipeMatcher;
@@ -116,6 +121,29 @@ namespace Mergeburgers.Gameplay
       {
         _isAnimating = false;
       }
+    }
+    
+    public void ClearRandomTilesAndContinue(int count)
+    {
+      var nonEmptyPositions = new List<Vector2Int>();
+      for (int x = 0; x < _width; x++)
+      for (int y = 0; y < _height; y++)
+        if (!_state[x, y].IsEmpty)
+          nonEmptyPositions.Add(new Vector2Int(x, y));
+
+      // Берём count случайных, или все если меньше
+      int toRemove = Mathf.Min(count, nonEmptyPositions.Count);
+      for (int i = 0; i < toRemove; i++)
+      {
+        int idx = Random.Range(0, nonEmptyPositions.Count);
+        var pos = nonEmptyPositions[idx];
+        _state[pos.x, pos.y] = IngredientCell.Empty;
+        nonEmptyPositions.RemoveAt(idx);
+      }
+
+      _isGameOver = false;
+      RedrawGrid();
+      Debug.Log($"[Board] Cleared {toRemove} tiles, continuing");
     }
     
     /// <summary>

@@ -1,5 +1,6 @@
-﻿using System;
-using Mergeburgers.Core;
+﻿using Mergeburgers.Core;
+using Mergeburgers.Meta;
+using Mergeburgers.Tools;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -13,11 +14,13 @@ namespace Mergeburgers.UI
 
     [SerializeField] private Button _playButton;
 
+    private EnergyManager _energy;
     private EconomyManager _economy;
 
     [Inject]
-    public void Construct(EconomyManager economy)
+    public void Construct(EnergyManager energy, EconomyManager economy)
     {
+      _energy = energy;
       _economy = economy;
     }
 
@@ -31,13 +34,19 @@ namespace Mergeburgers.UI
       int cashedOut = _economy.CashOut();
       if (cashedOut > 0)
       {
-        // TODO Day 17.B: показать popup "Раунд завершён, заработано +N"
+        Debug.Log($"[MainMenu] Cashed out previous session: +{cashedOut}");
       }
     }
 
-    private void OnPlayClicked()
+    private async void OnPlayClicked()
     {
-      SceneManager.LoadSceneAsync(GAME_SCENE);
+      if (!_energy.TrySpend(1))
+      {
+        Debug.Log("[MainMenu] No energy");
+        return;
+      }
+
+      await SceneManager.LoadSceneAsync(GAME_SCENE);
     }
 
     private void OnDestroy()
