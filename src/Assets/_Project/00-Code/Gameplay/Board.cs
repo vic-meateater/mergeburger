@@ -81,6 +81,17 @@ namespace Mergeburgers.Gameplay
 
         // 2. Применение нового состояния (с уровнями) и тик lifecycle
         _state = resolveResult.NewState;
+        
+        // Триггерим сигнал если был хоть один merge (operations с типом Merge)
+        foreach (var op in resolveResult.Operations)
+        {
+          if (op.Type == MergeOperationType.Merge)
+          {
+            _signalBus.Fire(new MergeOccurredSignal());
+            break;
+          }
+        }
+        
         _state = _burgerLifecycle.TickAndSellExpired(_state);
 
         // 3. Рецепты

@@ -1,6 +1,5 @@
 using Mergeburgers.Data;
 using Mergeburgers.Gameplay;
-using Mergeburgers.UI;
 using UnityEngine;
 using Zenject;
 
@@ -11,7 +10,6 @@ namespace Mergeburgers.Core
         [SerializeField] private Board _board;
         [SerializeField] private IngredientDatabase _ingredientDatabase;
         [SerializeField] private SwipeInput _swipeInput;
-        //[SerializeField] private CoinsHud _coinsHud;
         [SerializeField] private RecipeDatabase _recipeDatabase;
 
         public override void InstallBindings()
@@ -19,7 +17,6 @@ namespace Mergeburgers.Core
             Container.Bind<IngredientDatabase>().FromInstance(_ingredientDatabase).AsSingle();
             Container.Bind<Board>().FromInstance(_board).AsSingle();
             Container.Bind<SwipeInput>().FromInstance(_swipeInput).AsSingle();
-          //  Container.Bind<CoinsHud>().FromInstance(_coinsHud).AsSingle();
             Container.Bind<RecipeDatabase>().FromInstance(_recipeDatabase).AsSingle();
             
             Container.Bind<RecipeMatcher>().AsSingle();

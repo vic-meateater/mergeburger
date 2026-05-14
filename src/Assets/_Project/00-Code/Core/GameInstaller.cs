@@ -1,5 +1,6 @@
 ﻿using Mergeburgers.Events;
 using Mergeburgers.Meta;
+using Mergeburgers.Tutorial;
 using Mergeburgers.Yandex;
 using Zenject;
 
@@ -58,7 +59,11 @@ namespace Mergeburgers.Core
       Container.DeclareSignal<SessionCoinsChangedSignal>();
       Container.DeclareSignal<BankCoinsChangedSignal>();
       Container.DeclareSignal<EnergyChangedSignal>();
-      
+      Container.DeclareSignal<CashedOutSignal>();
+      Container.DeclareSignal<MergeOccurredSignal>().OptionalSubscriber();
+      Container.DeclareSignal<TutorialStateChangedSignal>();
+
+
       //Container.DeclareSignal<CoinsChangedSignal>();
     }
 
@@ -67,8 +72,12 @@ namespace Mergeburgers.Core
       Container.Bind<SaveManager>().AsSingle();
       Container.Bind<IdleIncomeCalculator>().AsSingle();
       Container.Bind<EnergyManager>().AsSingle();
+      Container.BindInterfacesAndSelfTo<InterstitialDispatcher>().AsSingle().NonLazy();
+      Container.BindInterfacesAndSelfTo<AutosaveDispatcher>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<RecipeUnlockTracker>().AsSingle().NonLazy();
+      Container.BindInterfacesAndSelfTo<TutorialController>().AsSingle().NonLazy();
+
     }
 
     private void Dev()

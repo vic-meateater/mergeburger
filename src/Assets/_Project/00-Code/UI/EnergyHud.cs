@@ -40,7 +40,7 @@ namespace Mergeburgers.UI
     private void OnDestroy()
     {
       if (_signalBus != null)
-        _signalBus.Unsubscribe<EnergyChangedSignal>(OnEnergyChanged);
+        _signalBus.TryUnsubscribe<EnergyChangedSignal>(OnEnergyChanged);
       if (_plusButton != null)
         _plusButton.onClick.RemoveListener(OnPlusClicked);
     }
