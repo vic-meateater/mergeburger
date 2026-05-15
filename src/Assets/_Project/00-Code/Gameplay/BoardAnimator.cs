@@ -31,6 +31,8 @@ namespace Mergeburgers.Gameplay
       {
         var tile = grid[op.From.x, op.From.y];
         if (tile == null) continue;
+        
+        tile.transform.SetAsLastSibling();
 
         var rect = tile.GetComponent<RectTransform>();
         var targetPos = targetPositions[op.To.x, op.To.y];
@@ -49,6 +51,8 @@ namespace Mergeburgers.Gameplay
     {
       if (tile == null) return Task.CompletedTask;
 
+      tile.transform.SetAsLastSibling();
+      
       var tcs = new TaskCompletionSource<bool>();
       var rect = tile.GetComponent<RectTransform>();
 
@@ -67,6 +71,8 @@ namespace Mergeburgers.Gameplay
     public Task PlayBurgerSold(Tile tile)
     {
       if (tile == null) return Task.CompletedTask;
+      
+      tile.transform.SetAsLastSibling();
 
       var tcs = new TaskCompletionSource<bool>();
       var rect = tile.GetComponent<RectTransform>();

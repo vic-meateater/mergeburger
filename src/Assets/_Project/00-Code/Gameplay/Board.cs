@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Mergeburgers.Events;
 using Mergeburgers.Data;
 using UnityEngine;
@@ -8,8 +9,7 @@ namespace Mergeburgers.Gameplay
 {
   public sealed class Board : MonoBehaviour
   {
-    [Header("Layout")] 
-    [SerializeField] private RectTransform _container;
+    [Header("Layout")] [SerializeField] private RectTransform _container;
     [SerializeField] private Tile _tilePrefab;
     [SerializeField] private int _width = 5;
     [SerializeField] private int _height = 5;
@@ -18,7 +18,7 @@ namespace Mergeburgers.Gameplay
 
     public int CurrentSessionCoins { get; private set; }
     public bool IsGameOver => _isGameOver;
-    
+
     private IngredientDatabase _ingredientDatabase;
     private MergeResolver _mergeResolver;
     private RecipeMatcher _recipeMatcher;
@@ -79,30 +79,43 @@ namespace Mergeburgers.Gameplay
         // 1. Анимация движения по операциям резолвера
         await _animator.PlayMoveOperations(resolveResult.Operations, _grid, _targetPositions);
 
-        // 2. Применение нового состояния (с уровнями) и тик lifecycle
+        // 2. Применяем new state от resolver
         _state = resolveResult.NewState;
-        
-        // Триггерим сигнал если был хоть один merge (operations с типом Merge)
+
+        // MergeOccurred для туториала (если был хоть один merge)
         foreach (var op in resolveResult.Operations)
-        {
           if (op.Type == MergeOperationType.Merge)
           {
             _signalBus.Fire(new MergeOccurredSignal());
             break;
           }
-        }
-        
-        _state = _burgerLifecycle.TickAndSellExpired(_state);
 
-        // 3. Рецепты
+        ResetTilePositions();
+        RedrawGrid();
+        
+        // 3. НАЙТИ бургеры на продажу (но НЕ удалять пока)
+        var expiring = _burgerLifecycle.FindExpiringBurgers(_state);
+
+        // 4. Анимировать продажу на этих плитках ДО reset positions
+        var sellTasks = new List<Task>();
+        foreach (var ex in expiring)
+        {
+          var tile = _grid[ex.Position.x, ex.Position.y];
+          sellTasks.Add(_animator.PlayBurgerSold(tile));
+        }
+        if (sellTasks.Count > 0)
+          await Task.WhenAll(sellTasks);
+
+        // 5. ПРИМЕНИТЬ тик (теперь state очищен от проданных)
+        _state = _burgerLifecycle.ApplyTick(_state);
+
+        // 6. Рецепты
         var matchResult = _recipeMatcher.FindAndApply(_state);
         _state = matchResult.NewState;
 
-        // 4. Перерисовка состояния (приведение Tile-объектов в правильное место и вид)
-        ResetTilePositions();
+        //ResetTilePositions();
         RedrawGrid();
 
-        // 5. Анимации новых бургеров
         foreach (var match in matchResult.Matches)
         {
           Debug.Log($"[Board] Recipe matched: {match.Recipe.DisplayName} ×{match.Multiplier}");
@@ -116,11 +129,9 @@ namespace Mergeburgers.Gameplay
           await _animator.PlayBurgerCreated(burgerTile);
         }
 
-        // 6. Спавн новой плитки
         _tileSpawner.SpawnOne(_state);
         RedrawGrid();
 
-        // 7. Game Over check
         if (_gameOverChecker.IsGameOver(_state))
         {
           _isGameOver = true;
@@ -133,7 +144,7 @@ namespace Mergeburgers.Gameplay
         _isAnimating = false;
       }
     }
-    
+
     public void ClearRandomTilesAndContinue(int count)
     {
       var nonEmptyPositions = new List<Vector2Int>();
@@ -156,7 +167,7 @@ namespace Mergeburgers.Gameplay
       RedrawGrid();
       Debug.Log($"[Board] Cleared {toRemove} tiles, continuing");
     }
-    
+
     /// <summary>
     /// После перемещения через анимации Tile-объекты в _grid находятся не на своих "сетка-позициях".
     /// Этот метод приводит координаты grid[x,y] к ожидаемому target[x,y] и одновременно перепривязывает
@@ -175,7 +186,7 @@ namespace Mergeburgers.Gameplay
         rect.anchoredPosition = _targetPositions[x, y];
       }
     }
-    
+
     private void SpawnGrid()
     {
       _grid = new Tile[_width, _height];

@@ -10,5 +10,6 @@ namespace Mergeburgers.Data
         [field: SerializeField] public string DisplayName  { get; private set; }
         [field: SerializeField] public Color PlaceholderColor { get; private set; }
         [field: SerializeField] public string PlaceholderLetter { get; private set; }
+        [field: SerializeField] public Sprite Icon { get; private set; }
     }
 }
