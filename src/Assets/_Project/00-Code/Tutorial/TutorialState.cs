@@ -6,6 +6,7 @@ namespace Mergeburgers.Tutorial
     SwipeAny = 1,           // ждём первого свайпа
     MergeAny = 2,           // ждём первого merge (любого)
     BurgerFirst = 3,        // ждём первого BurgerCreated
-    Complete = 4            // показан финальный попап
+    Complete = 4,
+    AlreadyPassed = 5       // показан финальный попап
   }
 }

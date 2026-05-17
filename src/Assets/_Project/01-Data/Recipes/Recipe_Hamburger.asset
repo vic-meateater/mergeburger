@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Recipe_Hamburger
   m_EditorClassIdentifier: 
   <DisplayName>k__BackingField: Hamburger
-  <Pattern>k__BackingField: 010000000200000001000000
+  <Pattern>k__BackingField: 01000000020000000600000001000000
   <Result>k__BackingField: 100
   <BaseSellPrice>k__BackingField: 10
   <MinLevelRequired>k__BackingField: -1

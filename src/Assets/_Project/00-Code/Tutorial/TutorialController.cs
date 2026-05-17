@@ -45,8 +45,8 @@ namespace Mergeburgers.Tutorial
 
       if (!passed)
         State = TutorialState.SwipeAny;
-      //else
-      //  State = TutorialState.Complete;
+      else
+        State = TutorialState.AlreadyPassed;
 
       Debug.Log($"[Tutorial] State initialized: {State}");
       _signalBus.Fire(new TutorialStateChangedSignal(State));

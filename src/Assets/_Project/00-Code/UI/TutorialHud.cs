@@ -20,8 +20,8 @@ namespace Mergeburgers.UI
     [SerializeField] private TextMeshProUGUI _hintLabel;
     [SerializeField] private Button _skipButton;
 
-    [Header("Completion popup")] 
-    [SerializeField] private GameObject _completePopup;
+    [Header("Completion popup")] [SerializeField]
+    private GameObject _completePopup;
 
     [SerializeField] private Button _completeCloseButton;
 
@@ -77,7 +77,7 @@ namespace Mergeburgers.UI
 
         case TutorialState.BurgerFirst:
           _hintPanel.SetActive(true);
-          _hintLabel.text = "Собери в ряд: Булка → Котлета → Булка. Получится Бургер!";
+          _hintLabel.text = "Собери в ряд: Булка → Котлета → Соус → Булка. Получится Бургер!";
           break;
 
         case TutorialState.Complete:
@@ -85,6 +85,8 @@ namespace Mergeburgers.UI
           _completePopup.SetActive(true);
           break;
 
+        case TutorialState.AlreadyPassed:
+        case TutorialState.Inactive:
         default:
           _hintPanel.SetActive(false);
           _completePopup.SetActive(false);

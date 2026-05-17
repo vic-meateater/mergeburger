@@ -205,7 +205,7 @@ namespace Mergeburgers.Gameplay
         rect.anchoredPosition = pos;
         rect.sizeDelta = new Vector2(_tileSize, _tileSize);
 
-        if (Random.value < 0.6f)
+        if (Random.value < 0.5f)
           _tileSpawner.SpawnOne(_state);
 
         _grid[x, y] = tile;
