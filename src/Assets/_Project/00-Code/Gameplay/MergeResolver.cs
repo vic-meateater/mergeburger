@@ -153,7 +153,7 @@ namespace Mergeburgers.Gameplay
 
       if (allSameLevel)
       {
-        if (group.Count >= 3 && firstLevel < MaxLevel)
+        if (firstLevel < MaxLevel)
           return IngredientCell.Of(group[0].cell.Type, firstLevel + 1);
         return IngredientCell.Of(group[0].cell.Type, firstLevel);
       }

@@ -77,7 +77,7 @@ namespace Mergeburgers.UI
 
         case TutorialState.BurgerFirst:
           _hintPanel.SetActive(true);
-          _hintLabel.text = "Собери в ряд: Булка → Котлета → Соус → Булка. Получится Бургер!";
+          _hintLabel.text = "Собери в ряд: Булка → Котлета → Булка. Получится Бургер!";
           break;
 
         case TutorialState.Complete:

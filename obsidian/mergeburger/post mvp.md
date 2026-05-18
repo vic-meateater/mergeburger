@@ -1,0 +1,12 @@
+
+- Multi-tier merge бургеров (Day 22, идея игрока-разработчика): 
+- Hamburger + Hamburger + Salad = BigMac 
+- BigMac + BigMac + Sauce = King Burger 
+- Bun, Patty, Cheese, Lettuce, Tomato остаются базовыми 
+- Hamburger и Veggieburger — базовые "линейные" рецепты 
+- BigMac и King — "tier 2 merge" рецепты 
+- Visual feedback: подсветка "у вас 2 Hamburger, ещё +Lettuce для BigMac" 
+- Лайфтайм бургеров: базовые живут дольше чтобы успеть стать advanced 
+- Балансинг с нуля: цены, частота, цели 
+- Оценка работы: 3-4 дня 
+- Trigger для внедрения: если ретеншн D7 < 5% или session count per day < 2

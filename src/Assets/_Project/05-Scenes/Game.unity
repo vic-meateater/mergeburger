@@ -1004,9 +1004,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _container: {fileID: 676608839}
   _tilePrefab: {fileID: 85999579939853473, guid: b2e53132f8f8c42e48174c4734cc2408, type: 3}
-  _width: 6
-  _height: 6
-  _tileSize: 125
+  _width: 5
+  _height: 5
+  _tileSize: 160
   _spacing: 8
 --- !u!224 &676608839
 RectTransform:
