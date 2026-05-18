@@ -167,6 +167,13 @@ namespace Mergeburgers.Gameplay
       RedrawGrid();
       Debug.Log($"[Board] Cleared {toRemove} tiles, continuing");
     }
+    
+    public Vector2 GetTileAnchoredPosition(Vector2Int boardPos)
+    {
+      if (boardPos.x < 0 || boardPos.x >= _width || boardPos.y < 0 || boardPos.y >= _height)
+        return Vector2.zero;
+      return _targetPositions[boardPos.x, boardPos.y];
+    }
 
     /// <summary>
     /// После перемещения через анимации Tile-объекты в _grid находятся не на своих "сетка-позициях".
