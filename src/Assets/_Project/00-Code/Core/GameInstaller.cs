@@ -1,7 +1,9 @@
-﻿using Mergeburgers.Events;
+﻿using Mergeburgers.Data;
+using Mergeburgers.Events;
 using Mergeburgers.Meta;
 using Mergeburgers.Tutorial;
 using Mergeburgers.Yandex;
+using UnityEngine;
 using Zenject;
 
 #if UNITY_EDITOR
@@ -16,6 +18,9 @@ namespace Mergeburgers.Core
 {
   public sealed class GameInstaller : MonoInstaller
   {
+    [SerializeField] private IngredientDatabase _ingredientDatabase;
+    [SerializeField] private RecipeDatabase _recipeDatabase;
+
     public override void InstallBindings()
     {
 #if UNITY_EDITOR
@@ -26,6 +31,7 @@ namespace Mergeburgers.Core
       Signals();
       Managers();
       Dev();
+      Configs();
     }
 
 #if UNITY_EDITOR
@@ -49,7 +55,7 @@ namespace Mergeburgers.Core
     private void Signals()
     {
       SignalBusInstaller.Install(Container);
-      
+
       Container.DeclareSignal<GameOverSignal>();
       Container.DeclareSignal<BurgerCreatedSignal>();
       Container.DeclareSignal<EnergySpentSignal>();
@@ -77,12 +83,17 @@ namespace Mergeburgers.Core
       Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<RecipeUnlockTracker>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<TutorialController>().AsSingle().NonLazy();
-
     }
 
     private void Dev()
     {
       Container.BindInterfacesAndSelfTo<DebugEventLogger>().AsSingle().NonLazy();
+    }
+
+    private void Configs()
+    {
+      Container.Bind<IngredientDatabase>().FromInstance(_ingredientDatabase).AsSingle();
+      Container.Bind<RecipeDatabase>().FromInstance(_recipeDatabase).AsSingle();
     }
   }
 }

@@ -75,6 +75,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69ae8685ddd8482ba8525f68198355b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _ingredientDatabase: {fileID: 11400000, guid: 57d64cd439f7c4da29d893b2020814bf, type: 2}
+  _recipeDatabase: {fileID: 11400000, guid: 4d52f76bba02e904ca7e2987d321ee27, type: 2}
 --- !u!114 &-8994822201046994831
 MonoBehaviour:
   m_ObjectHideFlags: 0
