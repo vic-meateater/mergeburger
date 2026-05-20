@@ -7,6 +7,9 @@ namespace Mergeburgers.UI
 {
   public sealed class RecipeBookPopup : MonoBehaviour
   {
+    private const float RowHeight = 120f;
+    private const float RowSpacing = 14f;
+
     [SerializeField] private GameObject _root;
     [SerializeField] private Button _openButton;
     [SerializeField] private Button _closeButton;
@@ -56,10 +59,19 @@ namespace Mergeburgers.UI
       foreach (Transform child in _rowsContainer)
         Destroy(child.gameObject);
 
+      float cursorY = 0f;
       foreach (var recipe in _recipeDatabase.All)
       {
         var row = Instantiate(_rowPrefab, _rowsContainer);
+        var rect = row.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0, 1); // top-stretch
+        rect.anchorMax = new Vector2(1, 1);
+        rect.pivot = new Vector2(0.5f, 1);
+        rect.sizeDelta = new Vector2(0, RowHeight);
+        rect.anchoredPosition = new Vector2(0, -cursorY);
+
         row.Setup(recipe, _ingredientDatabase);
+        cursorY += RowHeight + RowSpacing;
       }
 
       _isPopulated = true;
