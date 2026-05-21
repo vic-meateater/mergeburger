@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Game.Code.Audio
+namespace Mergeburgers.Audio
 {
     public static class WebAudioMusic
     {
