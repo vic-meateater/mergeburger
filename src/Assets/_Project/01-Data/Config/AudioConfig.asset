@@ -12,12 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 070d96489c034ed5a4ec5024223b616e, type: 3}
   m_Name: AudioConfig
   m_EditorClassIdentifier: 
-  SfxVolume: 0.7
-  MusicVolume: 0.4
-  Swipe: {fileID: 0}
-  Merge: {fileID: 0}
-  BurgerCreated: {fileID: 0}
-  BurgerSold: {fileID: 0}
-  ButtonClick: {fileID: 0}
-  MenuMusic: {fileID: 0}
-  GameMusic: {fileID: 0}
+  SfxVolume: 0.4
+  MusicVolume: 0.25
+  Swipe: {fileID: 8300000, guid: 989e0fb04bbdc924e99d1dc8820d7031, type: 3}
+  Merge: {fileID: 8300000, guid: 477dba54b81995144bbdc99863ebafac, type: 3}
+  BurgerCreatedClips:
+  - {fileID: 8300000, guid: 85ee04653afe55949905c41f8152c858, type: 3}
+  - {fileID: 8300000, guid: f214a9fd78c9a604ebd448fef090fe50, type: 3}
+  - {fileID: 8300000, guid: e952625a26c20e54789991de338e1056, type: 3}
+  - {fileID: 8300000, guid: 254748b3980f9154889233c0b13a9da1, type: 3}
+  BurgerSold: {fileID: 8300000, guid: 8910cb7e82ddeeb4e858a914e063e51e, type: 3}
+  ButtonClick: {fileID: 8300000, guid: 1859bbc029a00af41b835a12c9896e69, type: 3}
+  MenuMusic: {fileID: 8300000, guid: 6e9b6f90c3b6ae740b65baf1d79f491f, type: 3}
+  GameMusic: {fileID: 8300000, guid: 7e46487453c22c440a57a9e9d1d5655a, type: 3}

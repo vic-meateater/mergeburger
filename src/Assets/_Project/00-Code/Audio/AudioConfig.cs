@@ -12,7 +12,7 @@ namespace Mergeburgers.Audio
     [Header("SFX Clips (used as filename in StreamingAssets/sfx)")]
     public AudioClip Swipe;
     public AudioClip Merge;
-    public AudioClip BurgerCreated;
+    public AudioClip[] BurgerCreatedClips; 
     public AudioClip BurgerSold;
     public AudioClip ButtonClick;
 

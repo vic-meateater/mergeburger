@@ -60,7 +60,9 @@ namespace Mergeburgers.Audio
 
             LoadClip(_config.Swipe, path);
             LoadClip(_config.Merge, path);
-            LoadClip(_config.BurgerCreated, path);
+            if (_config.BurgerCreatedClips != null)
+              foreach (var clip in _config.BurgerCreatedClips)
+                LoadClip(clip, path);
             LoadClip(_config.BurgerSold, path);
             LoadClip(_config.ButtonClick, path);
         }
@@ -118,9 +120,25 @@ namespace Mergeburgers.Audio
 
     // --- SFX ---
 
-    public void PlaySwipe() => PlaySfx(_config.Swipe);
+    public void PlaySwipe()
+    {
+      if (_config.Swipe == null || _isSfxMuted) return;
+#if UNITY_WEBGL && !UNITY_EDITOR
+    WebAudioSound.Play(_config.Swipe.name, _config.SfxVolume * 0.3f);   // в 3 раза тише
+#else
+      _sfxSource.PlayOneShot(_config.Swipe, _config.SfxVolume * 0.3f);
+#endif
+    }
+
     public void PlayMerge() => PlaySfx(_config.Merge);
-    public void PlayBurgerCreated() => PlaySfx(_config.BurgerCreated);
+
+    public void PlayBurgerCreated()
+    {
+      if (_config.BurgerCreatedClips == null || _config.BurgerCreatedClips.Length == 0) return;
+      var clip = _config.BurgerCreatedClips[Random.Range(0, _config.BurgerCreatedClips.Length)];
+      PlaySfx(clip);
+    }
+
     public void PlayBurgerSold() => PlaySfx(_config.BurgerSold);
     public void PlayButtonClick() => PlaySfx(_config.ButtonClick);
 
