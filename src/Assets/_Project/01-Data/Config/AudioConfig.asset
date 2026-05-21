@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 070d96489c034ed5a4ec5024223b616e, type: 3}
+  m_Name: AudioConfig
+  m_EditorClassIdentifier: 
+  SfxVolume: 0.7
+  MusicVolume: 0.4
+  Swipe: {fileID: 0}
+  Merge: {fileID: 0}
+  BurgerCreated: {fileID: 0}
+  BurgerSold: {fileID: 0}
+  ButtonClick: {fileID: 0}
+  MenuMusic: {fileID: 0}
+  GameMusic: {fileID: 0}

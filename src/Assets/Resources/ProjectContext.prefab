@@ -77,6 +77,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _ingredientDatabase: {fileID: 11400000, guid: 57d64cd439f7c4da29d893b2020814bf, type: 2}
   _recipeDatabase: {fileID: 11400000, guid: 4d52f76bba02e904ca7e2987d321ee27, type: 2}
+  _audioConfig: {fileID: 11400000, guid: 102bc2a664d2e461c990808726f7c62d, type: 2}
 --- !u!114 &-8994822201046994831
 MonoBehaviour:
   m_ObjectHideFlags: 0

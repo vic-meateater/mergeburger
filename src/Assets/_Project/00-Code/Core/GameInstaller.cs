@@ -1,4 +1,5 @@
-﻿using Mergeburgers.Data;
+﻿using Mergeburgers.Audio;
+using Mergeburgers.Data;
 using Mergeburgers.Events;
 using Mergeburgers.Meta;
 using Mergeburgers.Tutorial;
@@ -20,6 +21,7 @@ namespace Mergeburgers.Core
   {
     [SerializeField] private IngredientDatabase _ingredientDatabase;
     [SerializeField] private RecipeDatabase _recipeDatabase;
+    [SerializeField] private Mergeburgers.Audio.AudioConfig _audioConfig;
 
     public override void InstallBindings()
     {
@@ -83,6 +85,9 @@ namespace Mergeburgers.Core
       Container.BindInterfacesAndSelfTo<EconomyManager>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<RecipeUnlockTracker>().AsSingle().NonLazy();
       Container.BindInterfacesAndSelfTo<TutorialController>().AsSingle().NonLazy();
+      Container.Bind<AudioConfig>().FromInstance(_audioConfig).AsSingle();
+      Container.Bind<AudioService>().AsSingle();
+      Container.BindInterfacesAndSelfTo<Mergeburgers.Audio.AudioSignalListener>().AsSingle().NonLazy();
     }
 
     private void Dev()
