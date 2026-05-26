@@ -1,6 +1,5 @@
 using Mergeburgers.Core;
 using Mergeburgers.Events;
-using UnityEngine;
 using Zenject;
 
 namespace Mergeburgers.Tutorial
@@ -28,8 +27,6 @@ namespace Mergeburgers.Tutorial
 
     public void Initialize()
     {
-      Debug.Log("[Tutorial] Subscribing");
-
       _signalBus.Subscribe<SwipeDetectedSignal>(OnSwipe);
       _signalBus.Subscribe<MergeOccurredSignal>(OnMerge);
       _signalBus.Subscribe<BurgerCreatedSignal>(OnBurgerCreated);
@@ -41,14 +38,12 @@ namespace Mergeburgers.Tutorial
       _stateInitialized = true;
 
       bool passed = _saveManager.Current?.tutorialPassed ?? false;
-      Debug.Log($"[Tutorial] EnsureStateInitialized: save.tutorialPassed={passed}");
 
       if (!passed)
         State = TutorialState.SwipeAny;
       else
         State = TutorialState.AlreadyPassed;
 
-      Debug.Log($"[Tutorial] State initialized: {State}");
       _signalBus.Fire(new TutorialStateChangedSignal(State));
     }
 
@@ -65,6 +60,15 @@ namespace Mergeburgers.Tutorial
       _signalBus.TryUnsubscribe<SwipeDetectedSignal>(OnSwipe);
       _signalBus.TryUnsubscribe<MergeOccurredSignal>(OnMerge);
       _signalBus.TryUnsubscribe<BurgerCreatedSignal>(OnBurgerCreated);
+    }
+
+    public void DismissCompletePopup()
+    {
+      if (State == TutorialState.Complete)
+      {
+        State = TutorialState.AlreadyPassed;
+        _signalBus.Fire(new TutorialStateChangedSignal(State));
+      }
     }
 
     private void OnSwipe(SwipeDetectedSignal s)
@@ -97,7 +101,6 @@ namespace Mergeburgers.Tutorial
     private void Advance(TutorialState next)
     {
       State = next;
-      Debug.Log($"[Tutorial] Advanced to {State}");
       _signalBus.Fire(new TutorialStateChangedSignal(State));
     }
 
@@ -109,12 +112,13 @@ namespace Mergeburgers.Tutorial
       if (reason == "first_burger_created")
       {
         _economy.AddSessionCoins(50);
-        Debug.Log("[Tutorial] +50 bonus session coins");
       }
 
       State = TutorialState.Complete;
-      Debug.Log($"[Tutorial] Complete (reason: {reason})");
       _signalBus.Fire(new TutorialStateChangedSignal(State));
+
+      // Сразу переходим в AlreadyPassed чтобы повторный заход не показал popup
+      State = TutorialState.AlreadyPassed;
     }
   }
 }

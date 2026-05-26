@@ -34,7 +34,6 @@ namespace Mergeburgers.Meta
       if (_saveManager.Current.unlockedRecipes.Contains(s.RecipeId)) return;
 
       _saveManager.Current.unlockedRecipes.Add(s.RecipeId);
-      Debug.Log($"[Unlock] First {s.RecipeId} created — added to unlocked");
     }
   }
 }

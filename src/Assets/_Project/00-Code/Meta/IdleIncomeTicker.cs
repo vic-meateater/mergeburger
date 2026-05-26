@@ -76,10 +76,10 @@ namespace Mergeburgers.Meta
 
       if (earned > 0)
       {
-        if (elapsed >= 60)
-          Debug.Log($"[Idle] Offline earnings (away {elapsed}s): +{earned}");
-        else
-          Debug.Log($"[Idle] Background earnings ({elapsed}s): +{earned}");
+        //if (elapsed >= 60)
+//          Debug.Log($"[Idle] Offline earnings (away {elapsed}s): +{earned}");
+        //else
+//          Debug.Log($"[Idle] Background earnings ({elapsed}s): +{earned}");
 
         _economy.AddBankCoins(earned);
       }

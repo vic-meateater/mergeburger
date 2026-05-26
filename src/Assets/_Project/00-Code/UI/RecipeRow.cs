@@ -17,7 +17,9 @@ namespace Mergeburgers.UI
 
     [Header("Containers")] 
     [SerializeField] private Transform _ingredientsContainer;
+
     [SerializeField] private Image _resultIcon;
+    [SerializeField] private Sprite _closedBurgerSprite;
     [SerializeField] private TextMeshProUGUI _priceLabel;
     [SerializeField] private GameObject _lockedOverlay;
     [SerializeField] private TextMeshProUGUI _requirementLabel;
@@ -27,7 +29,7 @@ namespace Mergeburgers.UI
     [SerializeField] private Image _ingredientIconPrefab;
     [SerializeField] private TextMeshProUGUI _plusSymbolPrefab;
 
-    public void Setup(RecipeData recipe, IngredientDatabase ingredientDb)
+    public void Setup(RecipeData recipe, IngredientDatabase ingredientDb, bool isUnlocked)
     {
       // Очищаем старые
       foreach (Transform child in _ingredientsContainer)
@@ -74,25 +76,48 @@ namespace Mergeburgers.UI
         }
       }
 
-      // Результат
-      var resultData = ingredientDb.Get(recipe.Result);
-      if (resultData?.Icon != null)
+      if (isUnlocked)
       {
-        _resultIcon.sprite = resultData.Icon;
-        _resultIcon.color = Color.white;
+        // Результат
+        var resultData = ingredientDb.Get(recipe.Result);
+        if (resultData?.Icon != null)
+        {
+          _resultIcon.sprite = resultData.Icon;
+          _resultIcon.color = Color.white;
+          _resultIcon.enabled = true;
+        }
+
+        //Цена бургера
+        //_priceLabel.text = $"{recipe.BaseSellPrice}";
+        // King Burger разблокирован — но всё равно подсказка про ★★★
+        if (recipe.MinLevelRequired > 0 && _requirementLabel != null)
+        {
+          _requirementLabel.text = "* * *";
+          _requirementLabel.gameObject.SetActive(true);
+        }
+        else if (_requirementLabel != null)
+        {
+          _requirementLabel.gameObject.SetActive(false);
+        }
+      }
+      else
+      {
+        // Заблокирован: знак вопроса вместо иконки
+        _resultIcon.sprite = _closedBurgerSprite;
+        //_priceLabel.text = "???";
+
+        if (_requirementLabel != null)
+        {
+          if (recipe.MinLevelRequired > 0)
+            _requirementLabel.text = "* * *";
+          else
+            _requirementLabel.text = "?";
+          _requirementLabel.gameObject.SetActive(true);
+        }
       }
 
-      //Цена бургера
-      //_priceLabel.text = $"{recipe.BaseSellPrice}";
-
-      bool isLocked = recipe.MinLevelRequired > 0;
-      _lockedOverlay.SetActive(isLocked);
-      
-      if (isLocked && _requirementLabel != null)
-      {
-        string stars = new string('*', recipe.MinLevelRequired);
-        _requirementLabel.text = $"{stars}";
-      }
+      // Overlay скрываем — задача через ??? и подпись
+      _lockedOverlay.SetActive(false);
     }
   }
 }

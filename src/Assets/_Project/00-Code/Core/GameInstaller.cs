@@ -32,7 +32,7 @@ namespace Mergeburgers.Core
 #endif
       Signals();
       Managers();
-      Dev();
+      //Dev();
       Configs();
     }
 

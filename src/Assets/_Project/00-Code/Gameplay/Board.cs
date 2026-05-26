@@ -68,7 +68,6 @@ namespace Mergeburgers.Gameplay
       var resolveResult = _mergeResolver.Resolve(_state, direction);
       if (!resolveResult.AnyChange)
       {
-        Debug.Log($"[Board] Swipe {direction} — no change");
         return;
       }
 
@@ -118,7 +117,6 @@ namespace Mergeburgers.Gameplay
 
         foreach (var match in matchResult.Matches)
         {
-          Debug.Log($"[Board] Recipe matched: {match.Recipe.DisplayName} ×{match.Multiplier}");
           _signalBus.Fire(new BurgerCreatedSignal(
             recipeId: match.Recipe.DisplayName,
             reward: match.FinalPrice,
@@ -135,7 +133,6 @@ namespace Mergeburgers.Gameplay
         if (_gameOverChecker.IsGameOver(_state))
         {
           _isGameOver = true;
-          Debug.Log("[Board] GAME OVER");
           _signalBus.Fire(new GameOverSignal(0, 0));
         }
       }
@@ -165,7 +162,6 @@ namespace Mergeburgers.Gameplay
 
       _isGameOver = false;
       RedrawGrid();
-      Debug.Log($"[Board] Cleared {toRemove} tiles, continuing");
     }
     
     public Vector2 GetTileAnchoredPosition(Vector2Int boardPos)
@@ -219,7 +215,6 @@ namespace Mergeburgers.Gameplay
       }
 
       RedrawGrid();
-      Debug.Log($"[Board] Spawned {_width}x{_height} grid");
     }
 
     private void RedrawGrid()

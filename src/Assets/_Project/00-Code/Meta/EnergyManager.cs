@@ -76,7 +76,6 @@ namespace Mergeburgers.Meta
       _signalBus.Fire(new EnergyChangedSignal(oldValue, newValue));
       _signalBus.Fire(new EnergySpentSignal(newValue));
 
-      Debug.Log($"[Energy] Spent {amount}, now {newValue}/{Max}");
       return true;
     }
 
@@ -96,7 +95,6 @@ namespace Mergeburgers.Meta
         _saveManager.Current.energyLastFullTime = NowUnix();
 
       _signalBus.Fire(new EnergyChangedSignal(oldValue, newValue));
-      Debug.Log($"[Energy] Added {amount}, now {newValue}/{Max}");
     }
 
     /// <summary>

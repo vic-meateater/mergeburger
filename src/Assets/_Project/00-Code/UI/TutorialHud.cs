@@ -14,14 +14,14 @@ namespace Mergeburgers.UI
   /// </summary>
   public sealed class TutorialHud : MonoBehaviour
   {
-    [Header("Hint panel (always visible during tutorial)")] [SerializeField]
-    private GameObject _hintPanel;
+    [Header("Hint panel (always visible during tutorial)")] 
+    [SerializeField] private GameObject _hintPanel;
 
     [SerializeField] private TextMeshProUGUI _hintLabel;
     [SerializeField] private Button _skipButton;
 
-    [Header("Completion popup")] [SerializeField]
-    private GameObject _completePopup;
+    [Header("Completion popup")] 
+    [SerializeField] private GameObject _completePopup;
 
     [SerializeField] private Button _completeCloseButton;
 
@@ -102,6 +102,7 @@ namespace Mergeburgers.UI
     private void OnCompleteClose()
     {
       _completePopup.SetActive(false);
+      _tutorial.DismissCompletePopup();
     }
   }
 }

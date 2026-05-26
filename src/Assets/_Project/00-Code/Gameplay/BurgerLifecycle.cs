@@ -112,7 +112,6 @@ namespace Mergeburgers.Gameplay
             coins: cell.BurgerSellPrice,
             boardPosition: new Vector2Int(x, y)
           ));
-          Debug.Log($"[Lifecycle] Auto-sold {cell.Type} at ({x},{y}) for {cell.BurgerSellPrice}");
           newState[x, y] = IngredientCell.Empty;
         }
         else

@@ -1,3 +1,4 @@
+using Mergeburgers.Core;
 using Mergeburgers.Data;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,13 +20,18 @@ namespace Mergeburgers.UI
 
     private RecipeDatabase _recipeDatabase;
     private IngredientDatabase _ingredientDatabase;
+    private SaveManager _saveManager;
     private bool _isPopulated;
 
     [Inject]
-    public void Construct(RecipeDatabase recipeDatabase, IngredientDatabase ingredientDatabase)
+    public void Construct(
+      RecipeDatabase recipeDatabase,
+      IngredientDatabase ingredientDatabase,
+      SaveManager saveManager)
     {
       _recipeDatabase = recipeDatabase;
       _ingredientDatabase = ingredientDatabase;
+      _saveManager = saveManager;
     }
 
     private void Start()
@@ -45,7 +51,7 @@ namespace Mergeburgers.UI
 
     private void Open()
     {
-      if (!_isPopulated) Populate();
+      Populate();
       _root.SetActive(true);
     }
 
@@ -59,6 +65,8 @@ namespace Mergeburgers.UI
       foreach (Transform child in _rowsContainer)
         Destroy(child.gameObject);
 
+      var unlocked = _saveManager.Current?.unlockedRecipes ?? new System.Collections.Generic.List<string>();
+
       float cursorY = 0f;
       foreach (var recipe in _recipeDatabase.All)
       {
@@ -70,7 +78,8 @@ namespace Mergeburgers.UI
         rect.sizeDelta = new Vector2(0, RowHeight);
         rect.anchoredPosition = new Vector2(0, -cursorY);
 
-        row.Setup(recipe, _ingredientDatabase);
+        bool isUnlocked = unlocked.Contains(recipe.DisplayName);
+        row.Setup(recipe, _ingredientDatabase, isUnlocked);
         cursorY += RowHeight + RowSpacing;
       }
 

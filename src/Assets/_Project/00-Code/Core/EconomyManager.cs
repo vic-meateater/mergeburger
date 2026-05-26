@@ -38,7 +38,6 @@ namespace Mergeburgers.Core
     private void OnBurgerSold(BurgerSoldSignal s)
     {
       AddSessionCoins(s.Coins);
-      Debug.Log($"[Economy] +{s.Coins} session ({s.RecipeId}) → session={CurrentSession}");
     }
 
     public void AddSessionCoins(int amount)

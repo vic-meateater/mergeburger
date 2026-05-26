@@ -1,4 +1,4 @@
-﻿//#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,7 +13,6 @@ namespace Mergeburgers.Yandex.Editor
     {
       await Task.Delay(100);
       var json = PlayerPrefs.GetString(KEY, string.Empty);
-      Debug.Log($"[EditorCloudSave] Loaded: {(string.IsNullOrEmpty(json) ? "<empty>" : json.Length + " chars")}");
       return json;
     }
 
@@ -22,9 +21,8 @@ namespace Mergeburgers.Yandex.Editor
       await Task.Delay(100);
       PlayerPrefs.SetString(KEY, json);
       PlayerPrefs.Save();
-      Debug.Log($"[EditorCloudSave] Saved: {json.Length} chars");
     }
   }
 }
 
-//#endif
+#endif

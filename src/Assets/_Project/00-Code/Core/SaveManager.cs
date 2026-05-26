@@ -29,7 +29,6 @@ namespace Mergeburgers.Core
 
       if (string.IsNullOrEmpty(json))
       {
-        Debug.Log("[SaveManager] No save found, creating default");
         Current = GameSave.CreateDefault();
         return;
       }
@@ -40,18 +39,15 @@ namespace Mergeburgers.Core
 
         if (loaded == null || loaded.version < CurrentVersion)
         {
-          Debug.LogWarning($"[SaveManager] Save version {loaded?.version} < current {CurrentVersion}, migrating");
           Current = Migrate(loaded);
         }
         else
         {
           Current = loaded;
-          Debug.Log($"[SaveManager] Save loaded: v{Current.version}, coins={Current.coins}");
         }
       }
       catch (System.Exception e)
       {
-        Debug.LogError($"[SaveManager] Failed to parse save, creating default: {e.Message}");
         Current = GameSave.CreateDefault();
       }
     }
@@ -60,14 +56,12 @@ namespace Mergeburgers.Core
     {
       if (Current == null)
       {
-        Debug.LogWarning("[SaveManager] SaveAsync called before LoadAsync, ignoring");
         return;
       }
 
       Current.version = CurrentVersion;
       var json = JsonUtility.ToJson(Current);
       await _cloudSave.SaveAsync(json);
-      Debug.Log($"[SaveManager] Saved: coins={Current.coins}, score={Current.highScore}");
     }
 
     /// <summary>

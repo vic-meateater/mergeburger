@@ -72,14 +72,12 @@ namespace Mergeburgers.UI
       _isOpen = true;
       _root.SetActive(true);
       _earnedLabel.text = $"Заработано: {_economy.CurrentSession}";
-      Debug.Log($"[GameOver] Popup opened, session={_economy.CurrentSession}");
     }
 
     private async void OnClaimClicked()
     {
       // Cashout и возврат в меню
       var amount = _economy.CashOut();
-      Debug.Log($"[GameOver] Claimed: +{amount}");
       _root.SetActive(false);
       _isOpen = false;
       await SceneManager.LoadSceneAsync(MainMenuScene);
@@ -88,21 +86,18 @@ namespace Mergeburgers.UI
     private async void OnContinueClicked()
     {
       _continueButton.interactable = false;
-      Debug.Log("[GameOver] Continue: requesting rewarded ad");
 
       var result = await _adService.ShowRewardedAsync(RewardedPlacementId);
       _continueButton.interactable = true;
 
       if (result == AdResult.Success)
       {
-        Debug.Log("[GameOver] Reward granted, clearing tiles and resuming");
         _board.ClearRandomTilesAndContinue(TilesToClear);
         _root.SetActive(false);
         _isOpen = false;
       }
       else
       {
-        Debug.Log("[GameOver] Ad failed/skipped, popup stays open");
         // popup остаётся открытым, игрок может попробовать ещё раз или забрать награду
       }
     }

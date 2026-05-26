@@ -632,7 +632,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -2001904135, guid: 96fd080be9746e8429ca95548753d4b7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -811,6 +811,7 @@ MonoBehaviour:
   _spacingBetween: 6
   _ingredientsContainer: {fileID: 3327151420258498117}
   _resultIcon: {fileID: 3857297811274508179}
+  _closedBurgerSprite: {fileID: -2001904135, guid: 96fd080be9746e8429ca95548753d4b7, type: 3}
   _priceLabel: {fileID: 7650136254891741718}
   _lockedOverlay: {fileID: 7316197160021662442}
   _requirementLabel: {fileID: 7675344532135237533}

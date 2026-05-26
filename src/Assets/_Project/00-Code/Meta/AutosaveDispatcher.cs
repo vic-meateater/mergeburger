@@ -1,7 +1,6 @@
 using System;
 using Mergeburgers.Core;
 using Mergeburgers.Events;
-using UnityEngine;
 using Zenject;
 
 namespace Mergeburgers.Meta
@@ -56,13 +55,11 @@ namespace Mergeburgers.Meta
       if (elapsed < ThrottleSeconds)
       {
         _pendingSave = true;
-        Debug.Log($"[Autosave] Throttled ({reason}), pending");
         return;
       }
 
       _pendingSave = false;
       _lastSaveUnix = now;
-      Debug.Log($"[Autosave] Save triggered by: {reason}");
       _ = _saveManager.SaveAsync();
     }
 
@@ -73,7 +70,6 @@ namespace Mergeburgers.Meta
     {
       _lastSaveUnix = NowUnix();
       _pendingSave = false;
-      Debug.Log($"[Autosave] FORCE save: {reason}");
       _ = _saveManager.SaveAsync();
     }
 
