@@ -67,7 +67,7 @@ namespace Mergeburgers.UI
     {
       if (_energy.IsFull)
       {
-        _timerLabel.text = "ПОЛНО";
+        _timerLabel.text = "";
         return;
       }
 

@@ -8,6 +8,7 @@ namespace Mergeburgers.Meta
   public sealed class IdleRateLabel : MonoBehaviour
   {
     [SerializeField] private TextMeshProUGUI _label;
+    [SerializeField] private TextMeshProUGUI _tutorialLabel;
 
     private SaveManager _saveManager;
     private IdleIncomeCalculator _calculator;
@@ -19,10 +20,17 @@ namespace Mergeburgers.Meta
       _calculator = calculator;
     }
 
+    private void OnEnable()
+    {
+      int rate = _calculator.CalculateRate(_saveManager.Current);
+      if(rate > 0)
+        _tutorialLabel.enabled = false;
+    }
+
     private void Update()
     {
       int rate = _calculator.CalculateRate(_saveManager.Current);
-      _label.text = rate > 0 ? $"+{rate}/сек" : "Соберите бургер чтобы открыть пассивный доход";
+      _label.text = rate > 0 ? $"+{rate}" : "0";
     }
   }
 }

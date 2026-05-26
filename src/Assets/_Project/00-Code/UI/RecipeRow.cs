@@ -82,7 +82,8 @@ namespace Mergeburgers.UI
         _resultIcon.color = Color.white;
       }
 
-      _priceLabel.text = $"{recipe.BaseSellPrice}";
+      //Цена бургера
+      //_priceLabel.text = $"{recipe.BaseSellPrice}";
 
       bool isLocked = recipe.MinLevelRequired > 0;
       _lockedOverlay.SetActive(isLocked);
