@@ -16,8 +16,9 @@ namespace Mergeburgers.UI
   {
     [Header("Hint panel (always visible during tutorial)")] 
     [SerializeField] private GameObject _hintPanel;
-
-    [SerializeField] private TextMeshProUGUI _hintLabel;
+    [SerializeField] private GameObject _swipeLabel;
+    [SerializeField] private GameObject _mergeLabel;
+    [SerializeField] private GameObject _firstBurgerLabel;
     [SerializeField] private Button _skipButton;
 
     [Header("Completion popup")] 
@@ -39,6 +40,8 @@ namespace Mergeburgers.UI
     {
       _hintPanel.SetActive(false);
       _completePopup.SetActive(false);
+      HideAllHintLabels();
+      
       _skipButton.onClick.AddListener(OnSkip);
       _completeCloseButton.onClick.AddListener(OnCompleteClose);
 
@@ -63,21 +66,27 @@ namespace Mergeburgers.UI
 
     private void ApplyState(TutorialState state)
     {
+      
+      HideAllHintLabels();
+      
       switch (state)
       {
         case TutorialState.SwipeAny:
           _hintPanel.SetActive(true);
-          _hintLabel.text = "Свайпни в любую сторону, чтобы передвинуть плитки";
+          _swipeLabel.SetActive(true);
+          //_swipeLabel.text = "Свайпни в любую сторону, чтобы передвинуть плитки";
           break;
 
         case TutorialState.MergeAny:
           _hintPanel.SetActive(true);
-          _hintLabel.text = "Найди две одинаковых плитки рядом — свайпни так, чтобы они столкнулись";
+          _mergeLabel.SetActive(true);
+          //_swipeLabel.text = "Найди две одинаковых плитки рядом — свайпни так, чтобы они столкнулись";
           break;
 
         case TutorialState.BurgerFirst:
           _hintPanel.SetActive(true);
-          _hintLabel.text = "Собери в ряд: Булка → Котлета → Булка. Получится Бургер!";
+          _firstBurgerLabel.SetActive(true);
+          //_swipeLabel.text = "Собери в ряд: Булка → Котлета → Булка. Получится Бургер!";
           break;
 
         case TutorialState.Complete:
@@ -92,6 +101,13 @@ namespace Mergeburgers.UI
           _completePopup.SetActive(false);
           break;
       }
+    }
+    
+    private void HideAllHintLabels()
+    {
+      _swipeLabel.SetActive(false);
+      _mergeLabel.SetActive(false);
+      _firstBurgerLabel.SetActive(false);
     }
 
     private void OnSkip()

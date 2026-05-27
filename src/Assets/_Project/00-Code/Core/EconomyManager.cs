@@ -75,8 +75,6 @@ namespace Mergeburgers.Core
       _signalBus.Fire(new BankCoinsChangedSignal(oldBank, _saveManager.Current.coins));
       _signalBus.Fire(new CashedOutSignal(amount, _saveManager.Current.coins));
 
-
-      Debug.Log($"[Economy] CashOut: +{amount} → bank={_saveManager.Current.coins}");
       return amount;
     }
   }

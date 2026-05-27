@@ -32,17 +32,13 @@ namespace Mergeburgers.UI
     private void Start()
     {
       int cashedOut = _economy.CashOut();
-      if (cashedOut > 0)
-      {
-        Debug.Log($"[MainMenu] Cashed out previous session: +{cashedOut}");
-      }
+
     }
 
     private async void OnPlayClicked()
     {
       if (!_energy.TrySpend(1))
       {
-        Debug.Log("[MainMenu] No energy");
         return;
       }
 
