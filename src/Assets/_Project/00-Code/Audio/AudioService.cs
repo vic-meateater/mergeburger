@@ -39,6 +39,8 @@ namespace Mergeburgers.Audio
 
             WebAudioSound.Init();
             LoadAllSfx();
+
+            VisibilityBridge.Register();
 #else
       var audioObject = new GameObject("[AudioService]");
       Object.DontDestroyOnLoad(audioObject);
@@ -149,6 +151,29 @@ namespace Mergeburgers.Audio
             WebAudioSound.Play(clip.name, _config.SfxVolume);
 #else
       _sfxSource.PlayOneShot(clip, _config.SfxVolume);
+#endif
+    }
+
+    // --- Pause / Resume all (visibility & ads) ---
+
+    public void PauseAll()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            // Через шлюз с причиной "ad": разворот окна во время рекламы не вернёт звук.
+            VisibilityBridge.Pause("ad");
+#else
+      if (_musicSource != null) _musicSource.Pause();
+      if (_sfxSource != null) _sfxSource.mute = true;
+#endif
+    }
+
+    public void ResumeAll()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            VisibilityBridge.Resume("ad");
+#else
+      if (_musicSource != null) _musicSource.UnPause();
+      if (_sfxSource != null) _sfxSource.mute = _isSfxMuted;
 #endif
     }
 

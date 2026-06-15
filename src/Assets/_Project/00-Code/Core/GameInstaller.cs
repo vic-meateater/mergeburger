@@ -88,6 +88,7 @@ namespace Mergeburgers.Core
       Container.Bind<AudioConfig>().FromInstance(_audioConfig).AsSingle();
       Container.Bind<AudioService>().AsSingle();
       Container.BindInterfacesAndSelfTo<Mergeburgers.Audio.AudioSignalListener>().AsSingle().NonLazy();
+      Container.BindInterfacesAndSelfTo<Mergeburgers.Audio.AdAudioMuter>().AsSingle().NonLazy();
     }
 
     private void Dev()
