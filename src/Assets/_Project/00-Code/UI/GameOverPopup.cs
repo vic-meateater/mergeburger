@@ -31,6 +31,7 @@ namespace Mergeburgers.UI
     private EconomyManager _economy;
     private IAdService _adService;
     private Board _board;
+    private ModalState _modalState;
 
     private bool _isOpen;
 
@@ -39,12 +40,14 @@ namespace Mergeburgers.UI
       SignalBus signalBus,
       EconomyManager economy,
       IAdService adService,
-      Board board)
+      Board board,
+      ModalState modalState)
     {
       _signalBus = signalBus;
       _economy = economy;
       _adService = adService;
       _board = board;
+      _modalState = modalState;
     }
 
     private void Start()
@@ -70,6 +73,7 @@ namespace Mergeburgers.UI
       if (_isOpen) return;
 
       _isOpen = true;
+      _modalState.Push();
       _root.SetActive(true);
       _earnedLabel.text = $"Заработано: {_economy.CurrentSession}";
     }
@@ -80,6 +84,7 @@ namespace Mergeburgers.UI
       var amount = _economy.CashOut();
       _root.SetActive(false);
       _isOpen = false;
+      _modalState.Pop();
       await SceneManager.LoadSceneAsync(MainMenuScene);
     }
 
@@ -95,6 +100,7 @@ namespace Mergeburgers.UI
         _board.ClearRandomTilesAndContinue(TilesToClear);
         _root.SetActive(false);
         _isOpen = false;
+        _modalState.Pop();
       }
       else
       {

@@ -22,7 +22,6 @@ namespace Mergeburgers.UI
     [SerializeField] private Sprite _closedBurgerSprite;
     [SerializeField] private TextMeshProUGUI _priceLabel;
     [SerializeField] private GameObject _lockedOverlay;
-    [SerializeField] private TextMeshProUGUI _requirementLabel;
 
 
     [Header("Prefabs")] 
@@ -87,37 +86,21 @@ namespace Mergeburgers.UI
           _resultIcon.enabled = true;
         }
 
-        //Цена бургера
-        //_priceLabel.text = $"{recipe.BaseSellPrice}";
-        // King Burger разблокирован — но всё равно подсказка про ★★★
-        if (recipe.MinLevelRequired > 0 && _requirementLabel != null)
-        {
-          _requirementLabel.text = "* * *";
-          _requirementLabel.gameObject.SetActive(true);
-        }
-        else if (_requirementLabel != null)
-        {
-          _requirementLabel.gameObject.SetActive(false);
-        }
+        // Разблокирован после первой продажи — показываем цену бургера
+        _priceLabel.text = $"{recipe.BaseSellPrice}";
+        _priceLabel.gameObject.SetActive(true);
       }
       else
       {
-        // Заблокирован: знак вопроса вместо иконки
+        // Заблокирован: знак вопроса вместо иконки, в подписи — требование
         _resultIcon.sprite = _closedBurgerSprite;
-        //_priceLabel.text = "???";
 
-        if (_requirementLabel != null)
-        {
-          if (recipe.MinLevelRequired > 0)
-            _requirementLabel.text = "* * *";
-          else
-            _requirementLabel.text = "?";
-          _requirementLabel.gameObject.SetActive(true);
-        }
+        _priceLabel.text = recipe.MinLevelRequired > 0 ? "* * *" : "?";
+        _priceLabel.gameObject.SetActive(true);
       }
 
-      // Overlay скрываем — задача через ??? и подпись
-      _lockedOverlay.SetActive(false);
+      // Overlay показываем на заблокированных рецептах
+      _lockedOverlay.SetActive(!isUnlocked);
     }
   }
 }

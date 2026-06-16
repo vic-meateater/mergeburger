@@ -17,6 +17,8 @@ namespace Mergeburgers.Core
             //Container.Bind<IngredientDatabase>().FromInstance(_ingredientDatabase).AsSingle();
             Container.Bind<Board>().FromInstance(_board).AsSingle();
             Container.Bind<SwipeInput>().FromInstance(_swipeInput).AsSingle();
+
+            Container.Bind<ModalState>().AsSingle();
             //Container.Bind<RecipeDatabase>().FromInstance(_recipeDatabase).AsSingle();
             
             Container.Bind<RecipeMatcher>().AsSingle();

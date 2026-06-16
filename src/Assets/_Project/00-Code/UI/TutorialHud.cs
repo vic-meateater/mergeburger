@@ -1,3 +1,4 @@
+using Mergeburgers.Core;
 using Mergeburgers.Events;
 using Mergeburgers.Tutorial;
 using TMPro;
@@ -28,18 +29,22 @@ namespace Mergeburgers.UI
 
     private SignalBus _signalBus;
     private TutorialController _tutorial;
+    private ModalState _modalState;
+
+    private bool _completeBlocking;
 
     [Inject]
-    public void Construct(SignalBus signalBus, TutorialController tutorial)
+    public void Construct(SignalBus signalBus, TutorialController tutorial, ModalState modalState)
     {
       _signalBus = signalBus;
       _tutorial = tutorial;
+      _modalState = modalState;
     }
 
     private void Start()
     {
       _hintPanel.SetActive(false);
-      _completePopup.SetActive(false);
+      SetCompletePopup(false);
       HideAllHintLabels();
       
       _skipButton.onClick.AddListener(OnSkip);
@@ -91,18 +96,34 @@ namespace Mergeburgers.UI
 
         case TutorialState.Complete:
           _hintPanel.SetActive(false);
-          _completePopup.SetActive(true);
+          SetCompletePopup(true);
           break;
 
         case TutorialState.AlreadyPassed:
         case TutorialState.Inactive:
         default:
           _hintPanel.SetActive(false);
-          _completePopup.SetActive(false);
+          SetCompletePopup(false);
           break;
       }
     }
     
+    private void SetCompletePopup(bool active)
+    {
+      _completePopup.SetActive(active);
+
+      if (active && !_completeBlocking)
+      {
+        _completeBlocking = true;
+        _modalState.Push();
+      }
+      else if (!active && _completeBlocking)
+      {
+        _completeBlocking = false;
+        _modalState.Pop();
+      }
+    }
+
     private void HideAllHintLabels()
     {
       _swipeLabel.SetActive(false);
@@ -117,7 +138,7 @@ namespace Mergeburgers.UI
 
     private void OnCompleteClose()
     {
-      _completePopup.SetActive(false);
+      SetCompletePopup(false);
       _tutorial.DismissCompletePopup();
     }
   }

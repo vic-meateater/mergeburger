@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace Mergeburgers.Gameplay
@@ -26,21 +27,35 @@ namespace Mergeburgers.Gameplay
 
       var tcs = new TaskCompletionSource<bool>();
       var sequence = DOTween.Sequence();
+      var movedContents = new List<RectTransform>();
 
       foreach (var op in ops)
       {
         var tile = grid[op.From.x, op.From.y];
         if (tile == null) continue;
-        
+
+        // Поднимаем плитку выше соседей, чтобы её содержимое ехало поверх их фонов
         tile.transform.SetAsLastSibling();
 
-        var rect = tile.GetComponent<RectTransform>();
-        var targetPos = targetPositions[op.To.x, op.To.y];
+        // Двигаем только содержимое (иконка/буква/уровень), фон-ячейка остаётся на месте.
+        // Смещение = разница позиций целевой и исходной клетки.
+        var delta = targetPositions[op.To.x, op.To.y] - targetPositions[op.From.x, op.From.y];
 
-        sequence.Join(rect.DOAnchorPos(targetPos, MoveDuration).SetEase(Ease.OutQuad));
+        foreach (var content in tile.ContentTransforms)
+        {
+          content.anchoredPosition = Vector2.zero;
+          sequence.Join(content.DOAnchorPos(delta, MoveDuration).SetEase(Ease.OutQuad));
+          movedContents.Add(content);
+        }
       }
 
-      sequence.OnComplete(() => tcs.TrySetResult(true));
+      sequence.OnComplete(() =>
+      {
+        // Возвращаем содержимое в локальный ноль — дальше Board.RedrawGrid перерисует клетки
+        foreach (var content in movedContents)
+          content.anchoredPosition = Vector2.zero;
+        tcs.TrySetResult(true);
+      });
       return tcs.Task;
     }
 
@@ -52,15 +67,26 @@ namespace Mergeburgers.Gameplay
       if (tile == null) return Task.CompletedTask;
 
       tile.transform.SetAsLastSibling();
-      
-      var tcs = new TaskCompletionSource<bool>();
-      var rect = tile.GetComponent<RectTransform>();
 
-      rect.localScale = Vector3.one;
-      DOTween.Sequence()
-        .Append(rect.DOScale(1.3f, MergePopDuration / 2).SetEase(Ease.OutQuad))
-        .Append(rect.DOScale(1.0f, MergePopDuration / 2).SetEase(Ease.InQuad))
-        .OnComplete(() => tcs.TrySetResult(true));
+      var tcs = new TaskCompletionSource<bool>();
+      var sequence = DOTween.Sequence();
+      var contents = tile.ContentTransforms;
+
+      // Вспышка масштабом только содержимого (бургер), фон-ячейка не дёргается
+      foreach (var content in contents)
+      {
+        content.localScale = Vector3.one;
+        sequence.Join(DOTween.Sequence()
+          .Append(content.DOScale(1.3f, MergePopDuration / 2).SetEase(Ease.OutQuad))
+          .Append(content.DOScale(1.0f, MergePopDuration / 2).SetEase(Ease.InQuad)));
+      }
+
+      sequence.OnComplete(() =>
+      {
+        foreach (var content in contents)
+          content.localScale = Vector3.one;
+        tcs.TrySetResult(true);
+      });
 
       return tcs.Task;
     }
@@ -71,25 +97,41 @@ namespace Mergeburgers.Gameplay
     public Task PlayBurgerSold(Tile tile)
     {
       if (tile == null) return Task.CompletedTask;
-      
+
       tile.transform.SetAsLastSibling();
 
       var tcs = new TaskCompletionSource<bool>();
-      var rect = tile.GetComponent<RectTransform>();
-      var canvasGroup = tile.GetComponent<CanvasGroup>();
-      if (canvasGroup == null)
-        canvasGroup = tile.gameObject.AddComponent<CanvasGroup>();
+      var sequence = DOTween.Sequence();
+      var contents = tile.ContentTransforms;
 
-      DOTween.Sequence()
-        .Append(rect.DOScale(0.0f, SellDuration).SetEase(Ease.InBack))
-        .Join(canvasGroup.DOFade(0f, SellDuration))
-        .OnComplete(() =>
+      // Масштабируем/гасим только содержимое (бургер), фон-ячейка остаётся на месте
+      foreach (var content in contents)
+      {
+        content.localScale = Vector3.one;
+        sequence.Join(content.DOScale(0.0f, SellDuration).SetEase(Ease.InBack));
+
+        var graphic = content.GetComponent<Graphic>();
+        if (graphic != null)
+          sequence.Join(graphic.DOFade(0f, SellDuration));
+      }
+
+      sequence.OnComplete(() =>
+      {
+        // Восстанавливаем для будущей перерисовки
+        foreach (var content in contents)
         {
-          // Восстанавливаем для будущей перерисовки
-          rect.localScale = Vector3.one;
-          canvasGroup.alpha = 1f;
-          tcs.TrySetResult(true);
-        });
+          content.localScale = Vector3.one;
+
+          var graphic = content.GetComponent<Graphic>();
+          if (graphic != null)
+          {
+            var color = graphic.color;
+            color.a = 1f;
+            graphic.color = color;
+          }
+        }
+        tcs.TrySetResult(true);
+      });
 
       return tcs.Task;
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Mergeburgers.Data;
 using TMPro;
 using UnityEngine;
@@ -15,6 +16,28 @@ namespace Mergeburgers.Gameplay
     public IngredientType Type { get; private set; }
     public int Level { get; private set; }
     public Vector2Int BoardPosition { get; set; }
+
+    private List<RectTransform> _contentTransforms;
+
+    /// <summary>
+    /// Визуальное содержимое плитки (иконка/буква/уровень) без фона-ячейки.
+    /// Анимация движения двигает только это, чтобы фон-ячейка оставалась на месте.
+    /// </summary>
+    public IReadOnlyList<RectTransform> ContentTransforms
+    {
+      get
+      {
+        if (_contentTransforms == null)
+        {
+          _contentTransforms = new List<RectTransform>(3);
+          if (_iconImage != null) _contentTransforms.Add((RectTransform)_iconImage.transform);
+          if (_letter != null) _contentTransforms.Add((RectTransform)_letter.transform);
+          if (_levelLabel != null) _contentTransforms.Add((RectTransform)_levelLabel.transform);
+        }
+
+        return _contentTransforms;
+      }
+    }
 
     public void SetCell(IngredientCell cell, IngredientData data)
     {
