@@ -90,10 +90,14 @@ namespace Mergeburgers.UI
 
     private async void OnContinueClicked()
     {
+      // Блокируем оба действия на время показа рекламы, чтобы Claim не сработал
+      // параллельно с обработкой результата rewarded.
       _continueButton.interactable = false;
+      _claimButton.interactable = false;
 
       var result = await _adService.ShowRewardedAsync(RewardedPlacementId);
       _continueButton.interactable = true;
+      _claimButton.interactable = true;
 
       if (result == AdResult.Success)
       {

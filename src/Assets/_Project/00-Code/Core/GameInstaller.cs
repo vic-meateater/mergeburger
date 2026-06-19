@@ -60,13 +60,13 @@ namespace Mergeburgers.Core
 
       Container.DeclareSignal<GameOverSignal>();
       Container.DeclareSignal<BurgerCreatedSignal>();
-      Container.DeclareSignal<EnergySpentSignal>();
-      Container.DeclareSignal<LevelMilestoneSignal>();
+      Container.DeclareSignal<EnergySpentSignal>().OptionalSubscriber();;
+      Container.DeclareSignal<LevelMilestoneSignal>().OptionalSubscriber();
       Container.DeclareSignal<SwipeDetectedSignal>();
       Container.DeclareSignal<BurgerSoldSignal>();
-      Container.DeclareSignal<SessionCoinsChangedSignal>();
+      Container.DeclareSignal<SessionCoinsChangedSignal>().OptionalSubscriber();;
       Container.DeclareSignal<BankCoinsChangedSignal>();
-      Container.DeclareSignal<EnergyChangedSignal>();
+      Container.DeclareSignal<EnergyChangedSignal>().OptionalSubscriber();;
       Container.DeclareSignal<CashedOutSignal>();
       Container.DeclareSignal<MergeOccurredSignal>().OptionalSubscriber();
       Container.DeclareSignal<TutorialStateChangedSignal>();

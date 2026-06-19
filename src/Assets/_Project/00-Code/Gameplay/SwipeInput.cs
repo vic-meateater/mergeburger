@@ -1,4 +1,5 @@
-﻿using Mergeburgers.Events;
+﻿using Mergeburgers.Core;
+using Mergeburgers.Events;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Zenject;
@@ -20,19 +21,28 @@ namespace Mergeburgers.Gameplay
     [SerializeField] private float _maxSwipeDuration = 1.0f; // более долгое = drag, не свайп
 
     private SignalBus _signalBus;
+    private ModalState _modalState;
 
     private Vector2 _startPosition;
     private float _startTime;
     private bool _isTracking;
 
     [Inject]
-    public void Construct(SignalBus signalBus)
+    public void Construct(SignalBus signalBus, ModalState modalState)
     {
       _signalBus = signalBus;
+      _modalState = modalState;
     }
 
     private void Update()
     {
+      // Пока открыт любой модал (попап) — ввод заблокирован: ни хода, ни звука свайпа.
+      if (_modalState.IsAnyOpen)
+      {
+        _isTracking = false;
+        return;
+      }
+
       var pointer = Pointer.current;
       if (pointer == null) return;
 
